@@ -42,6 +42,21 @@ High-level flow:
 
 This is cleaner for production because every deploy is repeatable and logged.
 
+This project includes a manual GitHub Actions workflow:
+
+```text
+.github/workflows/deploy-anchor-devnet.yml
+```
+
+To use it:
+
+1. Push the workflow to GitHub.
+2. In the GitHub repo, open **Settings -> Secrets and variables -> Actions**.
+3. Add repository secret `SOLANA_DEPLOY_KEYPAIR`.
+4. The secret value must be the full JSON array from a devnet Solana keypair file.
+5. Open **Actions -> Deploy Anchor Program to Devnet -> Run workflow**.
+6. After it finishes, copy the program id from `anchor keys list`.
+
 ## Alternative path: Solana Playground
 
 For fast demo deploys, paste the Anchor program into Solana Playground, connect a devnet wallet, build, and deploy. This is fastest, but less professional than Codespaces/CI for a client project.
