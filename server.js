@@ -6,7 +6,7 @@ const { createOnchainAdapter } = require('./lib/onchain');
 
 const root = __dirname;
 const chain = createOnchainAdapter({ root });
-const storePath = path.join(root, 'prototype-data.json');
+const storePath = process.env.VERCEL ? path.join('/tmp', 'aura-prototype-data.json') : path.join(root, 'prototype-data.json');
 const mime = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -181,7 +181,7 @@ const verifyHeartbeat = (data, network, input) => {
   return device;
 };
 
-http.createServer(async (req, res) => {
+const handler = async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const pathname = url.pathname;
 
@@ -568,4 +568,10 @@ http.createServer(async (req, res) => {
   }
   res.writeHead(200, { 'Content-Type': mime[path.extname(target)] || 'application/octet-stream' });
   fs.createReadStream(target).pipe(res);
-}).listen(process.env.PORT || 3000, () => console.log(`Aura protocol: http://localhost:${process.env.PORT || 3000}`));
+};
+
+if (require.main === module) {
+  http.createServer(handler).listen(process.env.PORT || 3000, () => console.log(`Aura protocol: http://localhost:${process.env.PORT || 3000}`));
+}
+
+module.exports = handler;
