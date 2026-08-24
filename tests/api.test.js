@@ -126,3 +126,67 @@ test('chain adapter exposes status and local ledger receipts', async () => {
   assert.equal(manual.status, 201);
   assert.equal(manual.body.data.action, 'profile.sync');
 });
+
+test('launch claim verifies social proof and blocks duplicate usernames', async () => {
+  const launch = await request('/v1/launch', undefined, 'GET');
+  assert.equal(launch.status, 200);
+  assert.ok(launch.body.data.postTemplate.includes('Aura Protocol'));
+  assert.equal(launch.body.data.siteUrl, 'https://www.auraprotocol.space/');
+  assert.equal(launch.body.data.twitterHandle, 'Aura_protocol_');
+  const bad = await request('/v1/launch/claim', {
+    auraHandle: 'early_builder',
+    twitterHandle: 'early_builder_x',
+    postText: 'random post',
+    postUrl: 'https://x.com/early_builder_x/status/123456789',
+    followed: true
+  });
+  assert.equal(bad.status, 400);
+  const claim = await request('/v1/launch/claim', {
+    auraHandle: 'early_builder',
+    twitterHandle: 'early_builder_x',
+    postText: launch.body.data.postTemplate,
+    postUrl: 'https://x.com/early_builder_x/status/123456789',
+    followed: true,
+    likes: 10,
+    reposts: 2,
+    replies: 1
+  });
+  assert.equal(claim.status, 201);
+  assert.equal(claim.body.data.auraHandle, 'early_builder');
+  assert.ok(claim.body.data.profileId);
+  assert.ok(claim.body.data.profileUrl.includes('profile.html?u=early_builder'));
+  assert.ok(claim.body.data.score > 1000);
+  const publicProfile = await request('/v1/launch/profiles/early_builder', undefined, 'GET');
+  assert.equal(publicProfile.status, 200);
+  assert.equal(publicProfile.body.data.auraHandle, 'early_builder');
+  assert.equal(publicProfile.body.data.twitterHandle, 'early_builder_x');
+  assert.equal(publicProfile.body.data.profile.handle, 'early_builder');
+  const updated = await request('/v1/launch/claim/engagement', {
+    auraHandle: 'early_builder',
+    twitterHandle: 'early_builder_x',
+    likes: 50,
+    reposts: 7,
+    replies: 4
+  });
+  assert.equal(updated.status, 200);
+  assert.ok(updated.body.data.score > claim.body.data.score);
+  const twoFieldClaim = await request('/v1/launch/claim', {
+    auraHandle: 'simple_builder',
+    twitterHandle: 'simple_builder_x',
+    postText: launch.body.data.postTemplate,
+    followed: true
+  });
+  assert.equal(twoFieldClaim.status, 201);
+  assert.equal(twoFieldClaim.body.data.verification.checkedPostUrl, false);
+  const board = await request('/v1/launch', undefined, 'GET');
+  assert.equal(board.status, 200);
+  assert.equal(board.body.data.leaderboard[0].auraHandle, 'early_builder');
+  const duplicate = await request('/v1/launch/claim', {
+    auraHandle: 'early_builder',
+    twitterHandle: 'another_builder',
+    postText: launch.body.data.postTemplate,
+    postUrl: 'https://x.com/another_builder/status/222222222',
+    followed: true
+  });
+  assert.equal(duplicate.status, 409);
+});

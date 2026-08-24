@@ -11,6 +11,7 @@ const mime = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
+  '.svg': 'image/svg+xml; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.md': 'text/markdown; charset=utf-8'
 };
@@ -23,6 +24,7 @@ const defaultStore = {
   heartbeats: [],
   epochs: [],
   profiles: [],
+  launchClaims: [],
   questCompletions: [],
   stakes: [],
   rewardClaims: [],
@@ -100,13 +102,91 @@ const profileScore = (data, profileId) => {
   return { earned, staked, claimed, claimable: Math.max(0, Math.floor(earned * 0.45) - staked - claimed), rankScore: earned + Math.floor(staked * 1.25) };
 };
 const publicProfile = (data, profile) => ({ ...profile, score: profileScore(data, profile.id) });
+const launchSiteUrl = 'https://www.auraprotocol.space/';
+const launchTwitterHandle = 'Aura_protocol_';
+const launchPostTemplate = `I just claimed my Aura Protocol username with @${launchTwitterHandle}. We are coming on Solana. Decentralized WiFi, verified hosts, launch rewards, and the AURA airdrop layer are loading. Claim yours: ${launchSiteUrl} #AuraProtocol #Solana #DePIN`;
+const launchScore = (claim) => {
+  const likes = Math.max(0, Math.min(100000, Number(claim.engagement?.likes || 0)));
+  const reposts = Math.max(0, Math.min(100000, Number(claim.engagement?.reposts || 0)));
+  const replies = Math.max(0, Math.min(100000, Number(claim.engagement?.replies || 0)));
+  return 1000 + likes * 12 + reposts * 30 + replies * 16 + (claim.followed ? 300 : 0);
+};
+const launchEngagement = (input) => ({
+  likes: Math.max(0, Math.min(100000, Number.parseInt(input.likes || 0, 10) || 0)),
+  reposts: Math.max(0, Math.min(100000, Number.parseInt(input.reposts || 0, 10) || 0)),
+  replies: Math.max(0, Math.min(100000, Number.parseInt(input.replies || 0, 10) || 0))
+});
+const publicLaunchClaim = (claim) => ({
+  ...claim,
+  profileUrl: `${launchSiteUrl}profile.html?u=${encodeURIComponent(claim.auraHandle)}`,
+  score: launchScore(claim),
+  estimatedAirdrop: Math.floor(launchScore(claim) * 1.8)
+});
+const publicLaunchProfile = (data, claim) => {
+  if (!claim) return null;
+  const profile = data.profiles.find((item) => item.id === claim.profileId || item.handle.toLowerCase() === claim.auraHandle.toLowerCase());
+  return {
+    auraHandle: claim.auraHandle,
+    twitterHandle: claim.twitterHandle,
+    twitterUrl: `https://x.com/${claim.twitterHandle}`,
+    officialTwitter: `https://x.com/${launchTwitterHandle}`,
+    profileUrl: `${launchSiteUrl}profile.html?u=${encodeURIComponent(claim.auraHandle)}`,
+    state: claim.state,
+    score: launchScore(claim),
+    estimatedAirdrop: Math.floor(launchScore(claim) * 1.8),
+    engagement: claim.engagement,
+    createdAt: claim.createdAt,
+    updatedAt: claim.updatedAt,
+    profile: profile ? publicProfile(data, profile) : null
+  };
+};
+const launchState = (data) => ({
+  postTemplate: launchPostTemplate,
+  siteUrl: launchSiteUrl,
+  twitterHandle: launchTwitterHandle,
+  twitterUrl: `https://x.com/${launchTwitterHandle}`,
+  shareImage: '/assets/aura-claim-card.svg',
+  claims: data.launchClaims.map(publicLaunchClaim),
+  leaderboard: data.launchClaims.map(publicLaunchClaim).sort((a, b) => b.score - a.score).slice(0, 50)
+});
+const ensureLaunchProfile = async (data, auraHandle, twitterHandle) => {
+  let profile = data.profiles.find((item) => item.handle.toLowerCase() === auraHandle.toLowerCase());
+  if (!profile) {
+    profile = {
+      id: id('prof'),
+      handle: auraHandle,
+      displayName: `@${auraHandle}`,
+      wallet: null,
+      twitter: { handle: twitterHandle, linkedAt: now(), provider: 'launch-claim' },
+      referralCode: crypto.createHash('sha256').update(auraHandle + Date.now()).digest('hex').slice(0, 8).toUpperCase(),
+      source: 'launch-claim',
+      createdAt: now()
+    };
+    data.profiles.push(profile);
+    data.questCompletions.push({ id: id('qcmp'), profileId: profile.id, questId: 'quest_profile', proof: 'launch-claim-profile', rewardPoints: 120, createdAt: now() });
+  }
+  profile.twitter = { handle: twitterHandle, linkedAt: profile.twitter?.linkedAt || now(), provider: 'launch-claim' };
+  const twitterQuest = requireQuest('quest_twitter');
+  const shareQuest = requireQuest('quest_share');
+  if (!data.questCompletions.some((item) => item.profileId === profile.id && item.questId === twitterQuest.id)) {
+    data.questCompletions.push({ id: id('qcmp'), profileId: profile.id, questId: twitterQuest.id, proof: `@${twitterHandle}`, rewardPoints: twitterQuest.rewardPoints, createdAt: now() });
+  }
+  data.questCompletions.push({ id: id('qcmp'), profileId: profile.id, questId: shareQuest.id, proof: 'launch-social-post-opened', rewardPoints: shareQuest.rewardPoints, createdAt: now() });
+  if (chain.config.autoSync && !profile.chain) {
+    const receipt = await chain.record('profile.create', { profile, score: profileScore(data, profile.id), source: 'launch-claim' });
+    profile.chain = receipt;
+    data.chainTransactions.push(receipt);
+  }
+  return profile;
+};
 const gameState = (data) => ({
   quests: questCatalog,
   profiles: data.profiles.map((profile) => publicProfile(data, profile)),
   completions: data.questCompletions,
   stakes: data.stakes,
   claims: data.rewardClaims,
-  leaderboard: data.profiles.map((profile) => publicProfile(data, profile)).sort((a, b) => b.score.rankScore - a.score.rankScore).slice(0, 20)
+  leaderboard: data.profiles.map((profile) => publicProfile(data, profile)).sort((a, b) => b.score.rankScore - a.score.rankScore).slice(0, 20),
+  launch: launchState(data)
 });
 const requireProfile = (data, profileId) => {
   const profile = data.profiles.find((item) => item.id === profileId);
@@ -191,6 +271,17 @@ const handler = async (req, res) => {
 
       if (req.method === 'GET' && pathname === '/v1/overview') return send(res, 200, { data: toPublic(data) });
       if (req.method === 'GET' && pathname === '/v1/game') return send(res, 200, { data: gameState(data) });
+      if (req.method === 'GET' && pathname === '/v1/launch') return send(res, 200, { data: launchState(data) });
+      const launchProfileHandle = getRouteId(pathname, /^\/v1\/launch\/profiles\/([a-z0-9_]+)$/);
+      if (req.method === 'GET' && launchProfileHandle) {
+        const claim = data.launchClaims.find((item) => item.auraHandle === launchProfileHandle.toLowerCase());
+        if (!claim) {
+          const error = new Error('Aura profile not found.');
+          error.status = 404;
+          throw error;
+        }
+        return send(res, 200, { data: publicLaunchProfile(data, claim) });
+      }
       if (req.method === 'GET' && pathname === '/v1/networks') return send(res, 200, { data: enrichNetworks(data) });
       if (req.method === 'GET' && pathname === '/v1/sessions') return send(res, 200, { data: data.sessions });
       if (req.method === 'GET' && pathname === '/v1/epochs') return send(res, 200, { data: data.epochs });
@@ -297,6 +388,91 @@ const handler = async (req, res) => {
         audit(data, 'profile.created', profile.id, { handle });
         write(data);
         return send(res, 201, { data: publicProfile(data, profile) });
+      }
+
+      if (req.method === 'POST' && pathname === '/v1/launch/claim') {
+        const input = await body(req);
+        const auraHandle = assertText(input.auraHandle, 'Aura username is required.', 32).replace(/^@/, '').toLowerCase();
+        const twitterHandle = assertText(input.twitterHandle, 'Twitter/X username is required.', 40).replace(/^@/, '');
+        if (!/^[a-z0-9_]{2,32}$/.test(auraHandle)) throw new Error('Aura username can only use lowercase letters, numbers, and underscores.');
+        if (!/^[a-zA-Z0-9_]{2,40}$/.test(twitterHandle)) throw new Error('Twitter/X username can only use letters, numbers, and underscores.');
+        if (data.launchClaims.some((claim) => claim.auraHandle === auraHandle)) {
+          const error = new Error('This Aura username is already claimed.');
+          error.status = 409;
+          throw error;
+        }
+        if (data.launchClaims.some((claim) => claim.twitterHandle.toLowerCase() === twitterHandle.toLowerCase())) {
+          const error = new Error('This Twitter/X username already claimed a launch profile.');
+          error.status = 409;
+          throw error;
+        }
+        const suppliedPostUrl = validText(input.postUrl, 260) ? input.postUrl.trim() : '';
+        const postUrl = suppliedPostUrl || `https://x.com/${twitterHandle}/status/pending`;
+        if (suppliedPostUrl) {
+          if (!/^https:\/\/(x\.com|twitter\.com)\/[a-zA-Z0-9_]{2,40}\/status\/[0-9]+/i.test(postUrl)) throw new Error('Post URL must look like https://x.com/username/status/123...');
+          if (!postUrl.toLowerCase().includes(`/${twitterHandle.toLowerCase()}/status/`)) throw new Error('Post URL username must match the Twitter/X username.');
+          if (data.launchClaims.some((claim) => claim.postUrl.toLowerCase() === postUrl.toLowerCase())) {
+            const error = new Error('This post URL has already been used for a claim.');
+            error.status = 409;
+            throw error;
+          }
+        }
+        const postText = assertText(input.postText || launchPostTemplate, 'Post text is required.', 500);
+        const normalizedPost = postText.toLowerCase();
+        const requiredTerms = ['aura protocol', 'solana'];
+        const missing = requiredTerms.filter((term) => !normalizedPost.includes(term));
+        if (missing.length) throw new Error(`Post text must include: ${missing.join(', ')}.`);
+        if (!input.followed) throw new Error('Confirm that you followed Aura Protocol before claiming.');
+        const engagement = launchEngagement(input);
+        const profile = await ensureLaunchProfile(data, auraHandle, twitterHandle);
+        const claim = {
+          id: id('launch'),
+          auraHandle,
+          twitterHandle,
+          profileId: profile.id,
+          postUrl,
+          postText,
+          followed: true,
+          engagement,
+          state: 'VERIFIED_LOCAL',
+          verification: {
+            provider: 'local-proof-check',
+            checkedPostUrl: Boolean(suppliedPostUrl),
+            checkedRequiredText: true,
+            checkedFollowConfirmation: true,
+            note: suppliedPostUrl
+              ? 'Production can replace this with X API OAuth/post/follow verification.'
+              : 'Username reserved in prototype mode. X composer is opened client-side; production can replace this with X API OAuth/post/follow verification.'
+          },
+          createdAt: now(),
+          updatedAt: now()
+        };
+        data.launchClaims.push(claim);
+        audit(data, 'launch.username.claimed', claim.id, { auraHandle, twitterHandle, profileId: profile.id, score: launchScore(claim) });
+        write(data);
+        return send(res, 201, { data: publicLaunchClaim(claim) });
+      }
+
+      if (req.method === 'POST' && pathname === '/v1/launch/claim/engagement') {
+        const input = await body(req);
+        const auraHandle = assertText(input.auraHandle, 'Aura username is required.', 32).replace(/^@/, '').toLowerCase();
+        const twitterHandle = assertText(input.twitterHandle, 'Twitter/X username is required.', 40).replace(/^@/, '');
+        const claim = data.launchClaims.find((item) => item.auraHandle === auraHandle && item.twitterHandle.toLowerCase() === twitterHandle.toLowerCase());
+        if (!claim) {
+          const error = new Error('Claim not found. Verify and claim the username first.');
+          error.status = 404;
+          throw error;
+        }
+        const next = launchEngagement(input);
+        claim.engagement = {
+          likes: Math.max(Number(claim.engagement?.likes || 0), next.likes),
+          reposts: Math.max(Number(claim.engagement?.reposts || 0), next.reposts),
+          replies: Math.max(Number(claim.engagement?.replies || 0), next.replies)
+        };
+        claim.updatedAt = now();
+        audit(data, 'launch.engagement.updated', claim.id, { auraHandle, twitterHandle, score: launchScore(claim), engagement: claim.engagement });
+        write(data);
+        return send(res, 200, { data: publicLaunchClaim(claim) });
       }
 
       const twitterProfileId = getRouteId(pathname, /^\/v1\/profiles\/(prof_[a-z0-9]+)\/link-twitter$/);

@@ -1,0 +1,218 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="virtual-protocol-site-verification" content="09b6b84d1d285824b9d81ab48dca5201" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Claim Username - Aura Protocol</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="brand.css">
+  <style>
+    .claim-hero{padding:88px 0 120px;display:grid;grid-template-columns:1fr .95fr;gap:44px;align-items:start}
+    .claim-hero h1{font-size:clamp(48px,5.4vw,92px);line-height:1.02;margin:28px 0 24px}
+    .claim-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(7,9,8,.14);border:1px solid rgba(7,9,8,.14);margin:34px 0}
+    .claim-steps div{background:rgba(255,255,255,.66);padding:18px}
+    .claim-steps b{font:12px 'DM Mono';color:#4b6252}
+    .claim-steps p{margin:12px 0 0;color:#506256;font-size:13px;line-height:1.5}
+    .claim-card{border:1px solid rgba(7,9,8,.12);background:rgba(255,255,255,.68);border-radius:38px;padding:22px;box-shadow:0 30px 90px rgba(24,58,30,.15);position:sticky;top:24px}
+    .share-preview{min-height:420px;border-radius:28px;background:url("assets/aura-claim-card.svg") center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(255,255,255,.72)}
+    .claim-form{display:grid;gap:14px;margin-top:20px}
+    .claim-form label{font:11px 'DM Mono';color:#536258}
+    .claim-form input,.claim-form textarea{width:100%;display:block;margin-top:8px;background:#fff;border:1px solid rgba(7,9,8,.16);border-radius:18px;color:#0b0e0c;padding:14px;font:14px Manrope}
+    .claim-form textarea{min-height:122px;resize:vertical}
+    .claim-form .mini{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .advanced-proof{display:none}
+    .checkline{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#506256;line-height:1.45}
+    .checkline input{width:auto;margin-top:4px}
+    .claim-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+    .claim-actions .button{border:0;cursor:pointer}
+    .helper-strip{margin-top:12px;display:flex;justify-content:space-between;gap:12px;color:#64766b;font:11px 'DM Mono'}
+    .claim-primary{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .status-box{margin-top:16px;border:1px solid rgba(7,9,8,.14);background:rgba(255,255,255,.72);border-radius:20px;padding:16px;font:12px/1.6 'DM Mono';color:#405146;white-space:pre-wrap}
+    .leaderboard-card{border:1px solid rgba(7,9,8,.12);background:rgba(255,255,255,.64);border-radius:30px;margin-top:26px;overflow:hidden}
+    .leader-head,.claim-row{display:grid;grid-template-columns:70px 1fr 120px 120px;gap:14px;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(7,9,8,.1)}
+    .leader-head{font:11px 'DM Mono';color:#536258;background:rgba(255,255,255,.46)}
+    .claim-row:last-child{border-bottom:0}
+    .claim-row strong{display:block;color:#0b0e0c}
+    .claim-row small{display:block;color:#607166;margin-top:4px;overflow-wrap:anywhere}
+    .claim-row a{color:inherit;text-decoration:none}
+    .claim-row a:hover strong{text-decoration:underline}
+    .badge{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#0b0e0c;color:#fff;font:12px 'DM Mono'}
+    .score{font-weight:800;color:#0b0e0c}
+    @media(max-width:980px){.claim-hero{grid-template-columns:1fr}.claim-card{position:relative}.claim-steps{grid-template-columns:1fr}.share-preview{min-height:340px}.leader-head{display:none}.claim-row{grid-template-columns:48px 1fr;gap:12px}.claim-row>div:nth-child(3),.claim-row>div:nth-child(4){grid-column:2}.claim-form .mini,.claim-primary{grid-template-columns:1fr}}
+    @media(max-width:560px){.claim-hero{padding:50px 0 80px}.share-preview{min-height:250px;border-radius:22px}.claim-card{border-radius:26px;padding:16px}.claim-actions .button,.claim-actions button{width:100%;text-align:center}.claim-row{padding:14px}}
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+  <header>
+    <a class="logo" href="index.html"><span class="mark"><b>A</b></span>AURA <i>PROTOCOL</i></a>
+    <nav><a href="architecture.html">Architecture</a><a href="network.html">Network</a><a href="hosts.html">Hosts</a><a href="developers.html">Developers</a><a class="selected" href="claim.html">Claim</a><a href="docs.html">Docs</a></nav>
+    <a class="navbtn" href="login.html">Login <b>↗</b></a>
+  </header>
+  <main class="page claim-hero">
+    <section>
+      <div class="pill">●&nbsp; AURA USERNAME CLAIM</div>
+      <h1>Claim your Aura username.<br><span>Post it. Verify it. Climb.</span></h1>
+      <p class="lede">Reserve your launch identity before token launch. Enter your Aura username and Twitter/X username, follow <a href="https://x.com/Aura_protocol_" target="_blank" rel="noreferrer">@Aura_protocol_</a>, open the generated launch post, and your claim enters the Aura Protocol airdrop leaderboard.</p>
+      <div class="claim-steps">
+        <div><b>01 / CLAIM</b><p>Pick one Aura username. Once it is claimed, nobody else can take it in this launch registry.</p></div>
+        <div><b>02 / POST</b><p>Click once to open the generated X launch post tagging @Aura_protocol_ and www.auraprotocol.space.</p></div>
+        <div><b>03 / SCORE</b><p>Proof, follow confirmation, likes, reposts, and replies increase launch score and estimated airdrop.</p></div>
+      </div>
+      <section class="leaderboard-card">
+        <div class="leader-head"><span>RANK</span><span>CLAIM</span><span>SCORE</span><span>AIRDROP</span></div>
+        <div id="claim-board"></div>
+      </section>
+    </section>
+    <aside class="claim-card">
+      <div class="share-preview" aria-label="Aura Protocol share image preview"></div>
+      <div class="claim-actions">
+        <a class="button white" href="assets/aura-claim-card.svg" download>Download image <b>↗</b></a>
+        <button class="button white" id="post-x" type="button">Post on X <b>↗</b></button>
+        <button class="button" id="copy-post" type="button">Copy post</button>
+      </div>
+      <div class="helper-strip"><span>Leaderboard auto-refreshes.</span><span>Score can be updated after claim.</span></div>
+      <form class="claim-form" id="claim-form">
+        <div class="claim-primary">
+          <label>Aura username<input name="auraHandle" value="aura_builder" autocomplete="off"></label>
+          <label>Twitter/X username<input name="twitterHandle" value="your_x_username" autocomplete="off"></label>
+        </div>
+        <label>Generated X post<textarea name="postText" id="postText"></textarea></label>
+        <label class="advanced-proof">Public X/Twitter post URL<input name="postUrl" value=""></label>
+        <div class="mini advanced-proof">
+          <label>Likes<input name="likes" type="number" min="0" value="0"></label>
+          <label>Reposts<input name="reposts" type="number" min="0" value="0"></label>
+          <label>Replies<input name="replies" type="number" min="0" value="0"></label>
+        </div>
+        <label class="checkline"><input name="followed" type="checkbox" checked> I followed <a href="https://x.com/Aura_protocol_" target="_blank" rel="noreferrer">@Aura_protocol_</a> and posted the launch message publicly.</label>
+        <button>Claim username + open X post</button>
+        <button class="button white" id="update-score" type="button">Update score from engagement</button>
+      </form>
+      <div class="status-box" id="claim-status">Ready. Users only need Aura username + Twitter username. The prototype reserves the username locally and opens X with the post automatically.</div>
+    </aside>
+  </main>
+  <script>
+    let launch = { postTemplate: '', leaderboard: [] };
+    const draftKey = 'aura-launch-claim-draft';
+    const formEl = document.querySelector('#claim-form');
+    const status = (message) => { document.querySelector('#claim-status').textContent = message; };
+    const fmt = (value) => new Intl.NumberFormat('en-US').format(value || 0);
+    const cleanHandle = (value) => String(value || '').replace(/^@/, '').trim();
+    const publicProfileUrl = (handle) => `${launch.siteUrl || 'https://www.auraprotocol.space/'}profile.html?u=${encodeURIComponent(handle)}`;
+    async function api(route, options = {}) {
+      const res = await fetch(route, { headers: { 'Content-Type': 'application/json' }, ...options });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      return json.data;
+    }
+    function formPayload() {
+      const form = new FormData(formEl);
+      return {
+        auraHandle: cleanHandle(form.get('auraHandle')).toLowerCase(),
+        twitterHandle: cleanHandle(form.get('twitterHandle')),
+        postText: form.get('postText'),
+        postUrl: '',
+        followed: form.get('followed') === 'on',
+        likes: Number(form.get('likes') || 0),
+        reposts: Number(form.get('reposts') || 0),
+        replies: Number(form.get('replies') || 0)
+      };
+    }
+    function saveDraft() {
+      localStorage.setItem(draftKey, JSON.stringify(formPayload()));
+    }
+    function restoreDraft() {
+      try {
+        const draft = JSON.parse(localStorage.getItem(draftKey) || '{}');
+        Object.entries(draft).forEach(([key, value]) => {
+          const field = formEl.elements[key];
+          if (!field) return;
+          if (field.type === 'checkbox') field.checked = Boolean(value);
+          else if (value !== undefined && value !== null && value !== '') field.value = value;
+        });
+      } catch {}
+    }
+    function generatedPostText() {
+      const auraHandle = cleanHandle(formEl.elements.auraHandle.value).toLowerCase() || 'aura_builder';
+      const twitterHandle = cleanHandle(formEl.elements.twitterHandle.value) || 'your_x_username';
+      const siteUrl = launch.siteUrl || 'https://www.auraprotocol.space/';
+      const officialHandle = launch.twitterHandle || 'Aura_protocol_';
+      const profileUrl = `${siteUrl}profile.html?u=${encodeURIComponent(auraHandle)}`;
+      return `I just claimed my Aura profile @${auraHandle} on Aura Protocol with my X @${twitterHandle}. Follow @${officialHandle}. We are coming on Solana. Profile: ${profileUrl} Claim yours: ${siteUrl} #AuraProtocol #Solana #DePIN`;
+    }
+    function syncDraftUi(forcePost = false) {
+      if (forcePost || !formEl.elements.postText.value || formEl.elements.postText.value === launch.postTemplate) {
+        formEl.elements.postText.value = generatedPostText();
+      }
+      saveDraft();
+    }
+    function renderBoard() {
+      document.querySelector('#claim-board').innerHTML = launch.leaderboard.map((claim, index) => `
+        <div class="claim-row">
+          <div><span class="badge">${index + 1}</span></div>
+          <div><a href="profile.html?u=${encodeURIComponent(claim.auraHandle)}"><strong>@${claim.auraHandle}</strong><small>Profile created · X: @${claim.twitterHandle}<br>${claim.profileUrl || publicProfileUrl(claim.auraHandle)}</small></a></div>
+          <div><span class="score">${fmt(claim.score)}</span><small>launch score</small></div>
+          <div><span class="score">${fmt(claim.estimatedAirdrop)}</span><small>estimated AURA</small></div>
+        </div>
+      `).join('') || '<div class="claim-row"><div><span class="badge">0</span></div><div><strong>No launch claims yet</strong><small>Be first to claim your Aura username.</small></div><div><span class="score">0</span><small>score</small></div><div><span class="score">0</span><small>airdrop</small></div></div>';
+    }
+    async function load() {
+      launch = await api('/v1/launch');
+      if (!document.querySelector('#postText').value) document.querySelector('#postText').value = launch.postTemplate;
+      renderBoard();
+    }
+    formEl.addEventListener('input', (event) => {
+      if (event.target.name === 'auraHandle') syncDraftUi(true);
+      else if (event.target.name === 'twitterHandle') syncDraftUi(false);
+      else saveDraft();
+    });
+    document.querySelector('#copy-post').addEventListener('click', async () => {
+      await navigator.clipboard.writeText(document.querySelector('#postText').value);
+      status('Post copied. Your Aura profile link is included in the post.');
+    });
+    document.querySelector('#post-x').addEventListener('click', () => {
+      syncDraftUi(false);
+      const text = document.querySelector('#postText').value || launch.postTemplate || generatedPostText();
+      const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+      status('Opening X/Twitter composer now. Your Aura username draft is saved on this page.');
+      window.open(intent, '_blank', 'noopener,noreferrer');
+    });
+    document.querySelector('#update-score').addEventListener('click', async () => {
+      try {
+        const claim = await api('/v1/launch/claim/engagement', { method: 'POST', body: JSON.stringify(formPayload()) });
+        status(`Leaderboard updated for @${claim.auraHandle}\nNew score: ${fmt(claim.score)}\nEstimated airdrop: ${fmt(claim.estimatedAirdrop)} AURA\nEngagement only moves upward, so nobody can lower your score.`);
+        await load();
+      } catch (error) {
+        status(error.message);
+      }
+    });
+    formEl.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const payload = formPayload();
+      try {
+        const claim = await api('/v1/launch/claim', { method: 'POST', body: JSON.stringify(payload) });
+        status(`Profile created: @${claim.auraHandle}\n${claim.profileUrl}\nScore: ${fmt(claim.score)}\nEstimated airdrop: ${fmt(claim.estimatedAirdrop)} AURA\nOpening X post composer now. Nobody else can claim this username.`);
+        const text = document.querySelector('#postText').value || generatedPostText();
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+        await load();
+      } catch (error) {
+        status(error.message);
+      }
+    });
+    restoreDraft();
+    load().then(() => {
+      syncDraftUi(!localStorage.getItem(draftKey));
+      status('Ready. Enter Aura username + Twitter username. Claim creates your public Aura profile, opens X automatically, and the leaderboard refreshes every 10 seconds.');
+    }).catch((error) => status(error.message));
+    setInterval(async () => {
+      try {
+        launch = await api('/v1/launch');
+        renderBoard();
+      } catch {}
+    }, 10000);
+  </script>
+</body>
+</html>
