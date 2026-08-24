@@ -18,6 +18,13 @@
     .claim-steps p{margin:12px 0 0;color:#506256;font-size:13px;line-height:1.5}
     .claim-card{border:1px solid rgba(7,9,8,.12);background:rgba(255,255,255,.68);border-radius:38px;padding:22px;box-shadow:0 30px 90px rgba(24,58,30,.15);position:sticky;top:24px}
     .share-preview{min-height:420px;border-radius:28px;background:url("assets/aura-claim-card.svg") center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(255,255,255,.72)}
+    .live-card{min-height:260px;border-radius:28px;margin-top:16px;padding:24px;background:radial-gradient(circle at 76% 20%,#fff 0,#dceedd 36%,#eef8ea 70%);border:1px solid rgba(7,9,8,.12);position:relative;overflow:hidden;color:#0a0d0b}
+    .live-card:before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.95) 0 2px,transparent 2.5px),radial-gradient(circle,rgba(0,0,0,.14) 0 1.4px,transparent 2px);background-size:38px 38px;background-position:0 0,19px 19px;opacity:.64}
+    .live-card>*{position:relative}
+    .live-card small{display:block;color:#405146;margin-bottom:28px;letter-spacing:.16em}
+    .live-card h2{font-size:clamp(32px,4vw,54px);line-height:.98;letter-spacing:-.07em;margin:0 0 16px}
+    .live-card p{color:#405146;line-height:1.45;max-width:430px;margin:0}
+    .live-card b{display:inline-block;margin-top:28px;background:#0a0d0b;color:#fff;border-radius:999px;padding:12px 18px}
     .claim-form{display:grid;gap:14px;margin-top:20px}
     .claim-form label{font:11px 'DM Mono';color:#536258}
     .claim-form input,.claim-form textarea{width:100%;display:block;margin-top:8px;background:#fff;border:1px solid rgba(7,9,8,.16);border-radius:18px;color:#0b0e0c;padding:14px;font:14px Manrope}
@@ -56,7 +63,7 @@
     <section>
       <div class="pill">●&nbsp; AURA USERNAME CLAIM</div>
       <h1>Claim your Aura username.<br><span>Post it. Verify it. Climb.</span></h1>
-      <p class="lede">Reserve your launch identity before token launch. Enter your Aura username and Twitter/X username, follow <a href="https://x.com/Aura_protocol_" target="_blank" rel="noreferrer">@Aura_protocol_</a>, open the generated launch post, and your claim enters the Aura Protocol airdrop leaderboard.</p>
+      <p class="lede">Reserve your launch identity before token launch. Enter your Aura username, Twitter/X username, and why you want Aura. We create your profile, build a share link with an Aura card image, and open the generated X post.</p>
       <div class="claim-steps">
         <div><b>01 / CLAIM</b><p>Pick one Aura username. Once it is claimed, nobody else can take it in this launch registry.</p></div>
         <div><b>02 / POST</b><p>Click once to open the generated X launch post tagging @Aura_protocol_ and www.auraprotocol.space.</p></div>
@@ -69,6 +76,12 @@
     </section>
     <aside class="claim-card">
       <div class="share-preview" aria-label="Aura Protocol share image preview"></div>
+      <div class="live-card" id="live-card">
+        <small>AURA PROFILE CARD</small>
+        <h2>I am builder<br><span id="card-handle">@aura_builder</span></h2>
+        <p id="card-why">I want Aura because internet should be coordinated by the people who provide it.</p>
+        <b id="card-x">@your_x_username</b>
+      </div>
       <div class="claim-actions">
         <a class="button white" href="assets/aura-claim-card.svg" download>Download image <b>↗</b></a>
         <button class="button white" id="post-x" type="button">Post on X <b>↗</b></button>
@@ -80,6 +93,7 @@
           <label>Aura username<input name="auraHandle" value="aura_builder" autocomplete="off"></label>
           <label>Twitter/X username<input name="twitterHandle" value="your_x_username" autocomplete="off"></label>
         </div>
+        <label>Why do you want Aura?<textarea name="whyAura" id="whyAura">I want Aura because internet should be coordinated by the people who provide it.</textarea></label>
         <label>Generated X post<textarea name="postText" id="postText"></textarea></label>
         <label class="advanced-proof">Public X/Twitter post URL<input name="postUrl" value=""></label>
         <div class="mini advanced-proof">
@@ -101,7 +115,7 @@
     const status = (message) => { document.querySelector('#claim-status').textContent = message; };
     const fmt = (value) => new Intl.NumberFormat('en-US').format(value || 0);
     const cleanHandle = (value) => String(value || '').replace(/^@/, '').trim();
-    const publicProfileUrl = (handle) => `${launch.siteUrl || 'https://www.auraprotocol.space/'}profile.html?u=${encodeURIComponent(handle)}`;
+    const publicProfileUrl = (handle) => `${launch.siteUrl || 'https://www.auraprotocol.space/'}p/${encodeURIComponent(handle)}`;
     async function api(route, options = {}) {
       const res = await fetch(route, { headers: { 'Content-Type': 'application/json' }, ...options });
       const json = await res.json();
@@ -113,6 +127,7 @@
       return {
         auraHandle: cleanHandle(form.get('auraHandle')).toLowerCase(),
         twitterHandle: cleanHandle(form.get('twitterHandle')),
+        whyAura: form.get('whyAura'),
         postText: form.get('postText'),
         postUrl: '',
         followed: form.get('followed') === 'on',
@@ -140,20 +155,30 @@
       const twitterHandle = cleanHandle(formEl.elements.twitterHandle.value) || 'your_x_username';
       const siteUrl = launch.siteUrl || 'https://www.auraprotocol.space/';
       const officialHandle = launch.twitterHandle || 'Aura_protocol_';
-      const profileUrl = `${siteUrl}profile.html?u=${encodeURIComponent(auraHandle)}`;
-      return `I just claimed my Aura profile @${auraHandle} on Aura Protocol with my X @${twitterHandle}. Follow @${officialHandle}. We are coming on Solana. Profile: ${profileUrl} Claim yours: ${siteUrl} #AuraProtocol #Solana #DePIN`;
+      const why = String(formEl.elements.whyAura.value || '').trim();
+      const shortWhy = why.length > 72 ? `${why.slice(0, 69)}...` : why;
+      const profileUrl = `${siteUrl}p/${encodeURIComponent(auraHandle)}`;
+      return `I am builder @${auraHandle} on Aura Protocol.\nX: @${twitterHandle}\nWhy Aura: ${shortWhy}\n${profileUrl}\nFollow @${officialHandle} #AuraProtocol #Solana`;
+    }
+    function renderLiveCard() {
+      const auraHandle = cleanHandle(formEl.elements.auraHandle.value).toLowerCase() || 'aura_builder';
+      const twitterHandle = cleanHandle(formEl.elements.twitterHandle.value) || 'your_x_username';
+      document.querySelector('#card-handle').textContent = `@${auraHandle}`;
+      document.querySelector('#card-x').textContent = `@${twitterHandle}`;
+      document.querySelector('#card-why').textContent = formEl.elements.whyAura.value || 'I want Aura because internet should be coordinated by the people who provide it.';
     }
     function syncDraftUi(forcePost = false) {
       if (forcePost || !formEl.elements.postText.value || formEl.elements.postText.value === launch.postTemplate) {
         formEl.elements.postText.value = generatedPostText();
       }
+      renderLiveCard();
       saveDraft();
     }
     function renderBoard() {
       document.querySelector('#claim-board').innerHTML = launch.leaderboard.map((claim, index) => `
         <div class="claim-row">
           <div><span class="badge">${index + 1}</span></div>
-          <div><a href="profile.html?u=${encodeURIComponent(claim.auraHandle)}"><strong>@${claim.auraHandle}</strong><small>Profile created · X: @${claim.twitterHandle}<br>${claim.profileUrl || publicProfileUrl(claim.auraHandle)}</small></a></div>
+          <div><a href="${claim.profileUrl || publicProfileUrl(claim.auraHandle)}"><strong>@${claim.auraHandle}</strong><small>Profile created · X: @${claim.twitterHandle}<br>${claim.whyAura || 'Aura builder profile'}</small></a></div>
           <div><span class="score">${fmt(claim.score)}</span><small>launch score</small></div>
           <div><span class="score">${fmt(claim.estimatedAirdrop)}</span><small>estimated AURA</small></div>
         </div>
@@ -165,8 +190,7 @@
       renderBoard();
     }
     formEl.addEventListener('input', (event) => {
-      if (event.target.name === 'auraHandle') syncDraftUi(true);
-      else if (event.target.name === 'twitterHandle') syncDraftUi(false);
+      if (event.target.name === 'auraHandle' || event.target.name === 'twitterHandle' || event.target.name === 'whyAura') syncDraftUi(true);
       else saveDraft();
     });
     document.querySelector('#copy-post').addEventListener('click', async () => {

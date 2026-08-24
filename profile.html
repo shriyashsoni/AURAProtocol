@@ -24,6 +24,7 @@
     .proof-row{border:1px solid rgba(7,9,8,.12);border-radius:24px;background:rgba(255,255,255,.58);padding:18px}
     .proof-row small{display:block;margin-bottom:8px}
     .proof-row a{color:#0a0d0b;font-weight:800;overflow-wrap:anywhere}
+    .profile-share{width:100%;border-radius:28px;border:1px solid rgba(7,9,8,.12);box-shadow:0 24px 70px rgba(24,58,30,.13)}
     .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
     @media(max-width:900px){.profile-shell{grid-template-columns:1fr;padding:52px 0 80px}.profile-meta{grid-template-columns:1fr}.profile-card,.proof-card{border-radius:28px;padding:22px}.actions .button{width:100%;text-align:center}}
   </style>
@@ -41,6 +42,7 @@
       <div class="avatar"></div>
       <h1 class="handle" id="handle">@loading</h1>
       <p class="lede" id="summary">Loading Aura launch profile.</p>
+      <p class="lede" id="why"></p>
       <div class="profile-meta">
         <div><span>LAUNCH SCORE</span><b id="score">0</b></div>
         <div><span>EST. AIRDROP</span><b id="airdrop">0</b></div>
@@ -48,10 +50,12 @@
       </div>
       <div class="actions">
         <a class="button white" id="twitter" href="https://x.com/Aura_protocol_" target="_blank" rel="noreferrer">View X <b>↗</b></a>
+        <a class="button white" id="share-x" href="https://x.com/intent/tweet" target="_blank" rel="noreferrer">Share profile <b>↗</b></a>
         <a class="button" href="claim.html">Claim yours <b>↗</b></a>
       </div>
     </section>
     <section class="proof-card">
+      <img class="profile-share" id="share-image" src="assets/aura-claim-card.svg" alt="Aura Protocol profile share card">
       <div class="proof-row"><small>PROFILE URL</small><a id="profile-url" href="#">-</a></div>
       <div class="proof-row"><small>OFFICIAL AURA X</small><a href="https://x.com/Aura_protocol_" target="_blank" rel="noreferrer">@Aura_protocol_</a></div>
       <div class="proof-row"><small>CONNECTED TWITTER/X</small><a id="user-x" href="#">-</a></div>
@@ -72,14 +76,18 @@
       document.title = `@${profile.auraHandle} - Aura Protocol`;
       setText('#handle', `@${profile.auraHandle}`);
       setText('#summary', `Aura launch profile connected to X @${profile.twitterHandle}. This profile is part of the Aura Protocol Solana launch leaderboard.`);
+      setText('#why', profile.whyAura || 'I want Aura because internet should be coordinated by the people who provide it.');
       setText('#score', fmt(profile.score));
       setText('#airdrop', fmt(profile.estimatedAirdrop));
       setText('#state', profile.state.replaceAll('_', ' '));
       setText('#profile-url', profile.profileUrl);
       document.querySelector('#profile-url').href = profile.profileUrl;
+      document.querySelector('#share-image').src = profile.shareImage;
       setText('#user-x', `@${profile.twitterHandle}`);
       document.querySelector('#user-x').href = profile.twitterUrl;
       document.querySelector('#twitter').href = profile.twitterUrl;
+      const post = `I am builder @${profile.auraHandle} on Aura Protocol.\nX: @${profile.twitterHandle}\nWhy Aura: ${profile.whyAura}\n${profile.profileUrl}\nFollow @Aura_protocol_ #AuraProtocol #Solana`;
+      document.querySelector('#share-x').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(post)}`;
     }
     load().catch((error) => {
       setText('#handle', 'Profile not found');

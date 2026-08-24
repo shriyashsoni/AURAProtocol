@@ -147,6 +147,7 @@ test('launch claim verifies social proof and blocks duplicate usernames', async 
     postText: launch.body.data.postTemplate,
     postUrl: 'https://x.com/early_builder_x/status/123456789',
     followed: true,
+    whyAura: 'I want Aura because community-owned WiFi should reward real builders.',
     likes: 10,
     reposts: 2,
     replies: 1
@@ -154,13 +155,22 @@ test('launch claim verifies social proof and blocks duplicate usernames', async 
   assert.equal(claim.status, 201);
   assert.equal(claim.body.data.auraHandle, 'early_builder');
   assert.ok(claim.body.data.profileId);
-  assert.ok(claim.body.data.profileUrl.includes('profile.html?u=early_builder'));
+  assert.ok(claim.body.data.profileUrl.includes('/p/early_builder'));
+  assert.equal(claim.body.data.whyAura, 'I want Aura because community-owned WiFi should reward real builders.');
   assert.ok(claim.body.data.score > 1000);
   const publicProfile = await request('/v1/launch/profiles/early_builder', undefined, 'GET');
   assert.equal(publicProfile.status, 200);
   assert.equal(publicProfile.body.data.auraHandle, 'early_builder');
   assert.equal(publicProfile.body.data.twitterHandle, 'early_builder_x');
+  assert.ok(publicProfile.body.data.shareImage.includes('/share/early_builder.svg'));
+  assert.equal(publicProfile.body.data.whyAura, 'I want Aura because community-owned WiFi should reward real builders.');
   assert.equal(publicProfile.body.data.profile.handle, 'early_builder');
+  const profilePage = await fetch(`http://localhost:${port}/p/early_builder`);
+  assert.equal(profilePage.status, 200);
+  assert.match(await profilePage.text(), /twitter:card/);
+  const shareCard = await fetch(`http://localhost:${port}/share/early_builder.svg`);
+  assert.equal(shareCard.status, 200);
+  assert.match(await shareCard.text(), /I AM BUILDER/);
   const updated = await request('/v1/launch/claim/engagement', {
     auraHandle: 'early_builder',
     twitterHandle: 'early_builder_x',
@@ -174,7 +184,8 @@ test('launch claim verifies social proof and blocks duplicate usernames', async 
     auraHandle: 'simple_builder',
     twitterHandle: 'simple_builder_x',
     postText: launch.body.data.postTemplate,
-    followed: true
+    followed: true,
+    whyAura: 'I want Aura for fast local internet rewards.'
   });
   assert.equal(twoFieldClaim.status, 201);
   assert.equal(twoFieldClaim.body.data.verification.checkedPostUrl, false);
