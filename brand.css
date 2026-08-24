@@ -132,3 +132,111 @@ header nav a:hover,header nav .selected{background:#fff;color:#090c0a}
 .network-dock b{font-size:18px;white-space:nowrap}
 .network-dock i{font-style:normal;color:rgba(255,255,255,.62);font-size:13px;margin-left:auto}
 @media(max-width:720px){.network-radar .canvas{height:560px}.network-radar .info{left:18px;right:18px;top:auto;bottom:118px;width:auto}.network-dock{display:block}.network-dock b,.network-dock i{display:block;margin-top:6px}.radar-path{display:none}}
+
+/* Production mobile polish: every public page, console, and quest arena should feel intentional on phones. */
+html,body{max-width:100%;overflow-x:hidden}
+img,svg,video,canvas{max-width:100%;height:auto}
+.panel,.code,.map,.network-radar,.hostbox,.split,.statement,.strip{max-width:100%}
+
+@media(max-width:1180px){
+  .page,header{width:calc(100% - 40px)}
+  .hero{grid-template-columns:1fr;gap:34px;min-height:auto;padding:84px 28px 64px}
+  .hero h1{font-size:clamp(42px,10vw,76px);letter-spacing:.08em}
+  .orb{height:min(62vw,520px);min-height:360px}
+  .cards,.cards.five,.hostgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .proof-grid,.product-footer,.intro,.statement,.hostbox,.devgrid,.split{grid-template-columns:1fr}
+  .docs{grid-template-columns:repeat(3,1fr)}
+}
+
+@media(max-width:860px){
+  header{position:relative;width:calc(100% - 24px);margin-top:12px;border-radius:26px;padding:14px;gap:10px}
+  .logo{font-size:13px;letter-spacing:.2em;gap:10px;min-width:0}
+  .logo i{letter-spacing:.2em}
+  .mark{width:36px;height:36px;border-radius:12px;flex:0 0 auto}
+  header nav{order:3;width:100%;overflow-x:auto;justify-content:flex-start;flex-wrap:nowrap;scrollbar-width:none}
+  header nav::-webkit-scrollbar{display:none}
+  header nav a{white-space:nowrap;padding:10px 13px;font-size:12px}
+  .navbtn{padding:12px 14px;font-size:12px;white-space:nowrap}
+  .actions{flex-wrap:wrap}
+  .actions .button{width:100%;text-align:center}
+  .strip{width:calc(100% - 24px);display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px;border-radius:22px;white-space:normal}
+  .intro,.systems,.participate,.sub{padding-left:20px;padding-right:20px}
+  .head,.quality{display:block;margin-bottom:30px}
+  .head p,.quality p{margin-top:18px}
+  .row{grid-template-columns:54px 1fr;gap:14px}
+  .row>span:last-child{display:none}
+  .code{box-shadow:8px 8px rgba(11,14,12,.13);overflow:hidden}
+  .code pre{overflow-x:auto;white-space:pre;max-width:100%;font-size:12px}
+  .doc{padding:58px 20px 90px}
+  .doc h1,.sub h1{font-size:clamp(38px,11vw,62px)}
+  .doc-grid{gap:28px;margin-top:36px}
+}
+
+@media(max-width:640px){
+  .page,header{width:calc(100% - 20px)}
+  header nav{display:flex}
+  body:before{background-size:34px 34px,34px 34px;background-position:0 0,17px 17px;opacity:.55}
+  .grid{background-size:42px 42px,42px 42px,24px 24px,24px 24px}
+  .hero{padding:48px 4px 46px}
+  .hero h1{font-size:42px;line-height:1.08;letter-spacing:.06em;margin:24px 0 18px}
+  .hero p,.lede,.intro p,.head p{font-size:15px;line-height:1.65}
+  .pill{font-size:10px;max-width:100%;white-space:normal}
+  .orb{height:330px;min-height:330px;border-radius:28px}
+  .orb:after{border-radius:28px}
+  .orb .ring,.orb .tag{display:none}
+  .strip{grid-template-columns:1fr;margin-bottom:54px}
+  .cards,.cards.five,.paths,.hostgrid,.docs,.proof-grid,.product-footer{grid-template-columns:1fr}
+  .cards article,.hostgrid article,.paths a{min-height:auto;padding:22px}
+  .icon{margin:20px 0}
+  .statement{width:calc(100% - 20px);margin:22px auto 70px;padding:44px 22px;border-radius:26px}
+  .statement h2,.intro h2,.head h2,.hostbox h2{font-size:36px}
+  .paths h3{margin-top:34px}
+  .final{padding:70px 14px}
+  .final h2{font-size:42px}
+  footer{width:calc(100% - 32px);gap:16px}
+  footer div{display:grid;grid-template-columns:1fr 1fr;width:100%;gap:10px}
+  .sub{padding-top:48px}
+  .split,.map,.hostbox{margin:54px 0}
+  .hostbox{padding:28px 18px;border-radius:24px}
+  .network-radar{border-radius:24px}
+  .network-radar .toolbar{height:auto;min-height:72px;flex-wrap:wrap;align-content:center;padding:14px}
+  .network-radar .toolbar span{width:100%;margin:0 0 8px}
+  .network-radar .canvas{height:520px}
+  .network-radar .pin{width:42px;height:42px}
+  .network-radar .info{bottom:110px;padding:18px}
+  .network-dock{left:14px;right:14px;bottom:14px;border-radius:20px;padding:16px}
+}
+
+@media(max-width:760px){
+  .console-shell,.arena{width:calc(100% - 20px)!important;border-left:0!important;border-right:0!important}
+  .rail,.profile,.rewards,.quest-main,.workbench{padding:16px!important}
+  .rail{position:relative!important;top:auto!important;height:auto!important;border-right:0!important;border-bottom:1px solid rgba(7,9,8,.12)!important}
+  .rail nav{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
+  .rail nav a{padding:12px!important;font-size:12px!important}
+  .topline,.ticker,.stage-map,.account-grid{grid-template-columns:1fr!important}
+  .metric,.ticker div,.stage-map div{border-right:0!important;border-bottom:1px solid rgba(7,9,8,.12)!important}
+  .metric:last-child,.ticker div:last-child,.stage-map div:last-child{border-bottom:0!important}
+  .ops-grid{grid-template-columns:1fr!important;gap:18px!important}
+  .panel-head,.panel-title{height:auto!important;min-height:56px;gap:8px;align-items:flex-start!important;flex-direction:column;padding:14px 16px!important}
+  .panel-body,.flow-form,.form-stack{padding:16px!important}
+  .flow-form{grid-template-columns:1fr!important}
+  .flow-form button,.form-stack button,.tool-button,.quest-table button{width:100%}
+  .log{max-height:260px;overflow:auto;word-break:break-word}
+  .epoch-row,.leader-row,.proof-row{grid-template-columns:1fr!important;gap:8px!important}
+  .quest-table,.quest-table thead,.quest-table tbody,.quest-table tr,.quest-table th,.quest-table td{display:block!important;width:100%!important}
+  .quest-table thead{display:none!important}
+  .quest-table tr{padding:14px 0;border-bottom:1px solid rgba(7,9,8,.12)!important}
+  .quest-table td{border-bottom:0!important;padding:8px 0!important}
+  .quest-table input{width:100%}
+}
+
+@media(max-width:420px){
+  .logo{font-size:11px;letter-spacing:.12em}
+  .logo i{letter-spacing:.12em}
+  .navbtn b{display:none}
+  header nav a{font-size:11px;padding:9px 11px}
+  .hero h1{font-size:36px}
+  .orb{height:285px;min-height:285px}
+  .statement h2,.intro h2,.head h2,.hostbox h2{font-size:32px}
+  .rail nav{grid-template-columns:1fr!important}
+}
