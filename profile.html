@@ -86,8 +86,8 @@
       setText('#user-x', `@${profile.twitterHandle}`);
       document.querySelector('#user-x').href = profile.twitterUrl;
       document.querySelector('#twitter').href = profile.twitterUrl;
-      const post = `I am builder @${profile.auraHandle} on Aura Protocol.\nX: @${profile.twitterHandle}\nWhy Aura: ${profile.whyAura}\n${profile.profileUrl}\nFollow @Aura_protocol_ #AuraProtocol #Solana`;
-      document.querySelector('#share-x').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(post)}`;
+      const post = `I am builder @${profile.auraHandle} on Aura Protocol.\nX: @${profile.twitterHandle}\nWhy Aura: ${profile.whyAura}\nFollow @Aura_protocol_ #AuraProtocol #Solana`;
+      document.querySelector('#share-x').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(post)}&url=${encodeURIComponent(profile.profileUrl)}`;
     }
     load().catch((error) => {
       setText('#handle', 'Profile not found');

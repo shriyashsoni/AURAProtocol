@@ -162,12 +162,15 @@ test('launch claim verifies social proof and blocks duplicate usernames', async 
   assert.equal(publicProfile.status, 200);
   assert.equal(publicProfile.body.data.auraHandle, 'early_builder');
   assert.equal(publicProfile.body.data.twitterHandle, 'early_builder_x');
-  assert.ok(publicProfile.body.data.shareImage.includes('/share/early_builder.svg'));
+  assert.ok(publicProfile.body.data.shareImage.includes('/share/early_builder.png'));
   assert.equal(publicProfile.body.data.whyAura, 'I want Aura because community-owned WiFi should reward real builders.');
   assert.equal(publicProfile.body.data.profile.handle, 'early_builder');
   const profilePage = await fetch(`http://localhost:${port}/p/early_builder`);
   assert.equal(profilePage.status, 200);
   assert.match(await profilePage.text(), /twitter:card/);
+  const sharePng = await fetch(`http://localhost:${port}/share/early_builder.png`);
+  assert.equal(sharePng.status, 200);
+  assert.match(sharePng.headers.get('content-type'), /image\/(png|svg\+xml)/);
   const shareCard = await fetch(`http://localhost:${port}/share/early_builder.svg`);
   assert.equal(shareCard.status, 200);
   assert.match(await shareCard.text(), /I AM BUILDER/);

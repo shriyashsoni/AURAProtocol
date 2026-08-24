@@ -157,8 +157,23 @@
       const officialHandle = launch.twitterHandle || 'Aura_protocol_';
       const why = String(formEl.elements.whyAura.value || '').trim();
       const shortWhy = why.length > 72 ? `${why.slice(0, 69)}...` : why;
-      const profileUrl = `${siteUrl}p/${encodeURIComponent(auraHandle)}`;
-      return `I am builder @${auraHandle} on Aura Protocol.\nX: @${twitterHandle}\nWhy Aura: ${shortWhy}\n${profileUrl}\nFollow @${officialHandle} #AuraProtocol #Solana`;
+      return `I am builder @${auraHandle} on Aura Protocol.\nX: @${twitterHandle}\nWhy Aura: ${shortWhy}\nFollow @${officialHandle} #AuraProtocol #Solana`;
+    }
+    function xIntent(text, url) {
+      return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    }
+    async function claimProfile() {
+      const payload = formPayload();
+      return api('/v1/launch/claim', { method: 'POST', body: JSON.stringify(payload) });
+    }
+    async function claimAndOpenX() {
+      syncDraftUi(true);
+      const claim = await claimProfile();
+      const text = document.querySelector('#postText').value || generatedPostText();
+      status(`Profile ready: @${claim.auraHandle}\n${claim.profileUrl}\nOpening X with your separate profile link + preview card.`);
+      window.open(xIntent(text, claim.profileUrl), '_blank', 'noopener,noreferrer');
+      await load();
+      return claim;
     }
     function renderLiveCard() {
       const auraHandle = cleanHandle(formEl.elements.auraHandle.value).toLowerCase() || 'aura_builder';
@@ -199,10 +214,7 @@
     });
     document.querySelector('#post-x').addEventListener('click', () => {
       syncDraftUi(false);
-      const text = document.querySelector('#postText').value || launch.postTemplate || generatedPostText();
-      const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-      status('Opening X/Twitter composer now. Your Aura username draft is saved on this page.');
-      window.open(intent, '_blank', 'noopener,noreferrer');
+      claimAndOpenX().catch((error) => status(error.message));
     });
     document.querySelector('#update-score').addEventListener('click', async () => {
       try {
@@ -220,7 +232,7 @@
         const claim = await api('/v1/launch/claim', { method: 'POST', body: JSON.stringify(payload) });
         status(`Profile created: @${claim.auraHandle}\n${claim.profileUrl}\nScore: ${fmt(claim.score)}\nEstimated airdrop: ${fmt(claim.estimatedAirdrop)} AURA\nOpening X post composer now. Nobody else can claim this username.`);
         const text = document.querySelector('#postText').value || generatedPostText();
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+        window.open(xIntent(text, claim.profileUrl), '_blank', 'noopener,noreferrer');
         await load();
       } catch (error) {
         status(error.message);

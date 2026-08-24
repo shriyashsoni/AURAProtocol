@@ -60,6 +60,10 @@ const sendSvg = (res, svg) => {
   res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'public, max-age=300' });
   res.end(svg);
 };
+const sendPng = (res, png) => {
+  res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=300' });
+  res.end(png);
+};
 const body = (req) => new Promise((resolve, reject) => {
   let raw = '';
   req.on('data', (chunk) => { raw += chunk; });
@@ -128,7 +132,7 @@ const launchEngagement = (input) => ({
 const publicLaunchClaim = (claim) => ({
   ...claim,
   profileUrl: `${launchSiteUrl}p/${encodeURIComponent(claim.auraHandle)}`,
-  shareImage: `${launchSiteUrl}share/${encodeURIComponent(claim.auraHandle)}.svg`,
+  shareImage: `${launchSiteUrl}share/${encodeURIComponent(claim.auraHandle)}.png`,
   score: launchScore(claim),
   estimatedAirdrop: Math.floor(launchScore(claim) * 1.8)
 });
@@ -141,7 +145,7 @@ const publicLaunchProfile = (data, claim) => {
     twitterUrl: `https://x.com/${claim.twitterHandle}`,
     officialTwitter: `https://x.com/${launchTwitterHandle}`,
     profileUrl: `${launchSiteUrl}p/${encodeURIComponent(claim.auraHandle)}`,
-    shareImage: `${launchSiteUrl}share/${encodeURIComponent(claim.auraHandle)}.svg`,
+    shareImage: `${launchSiteUrl}share/${encodeURIComponent(claim.auraHandle)}.png`,
     whyAura: claim.whyAura || profile?.bio || 'I want Aura because internet should be coordinated by the people who provide it.',
     state: claim.state,
     score: launchScore(claim),
@@ -217,7 +221,7 @@ const renderProfileDocument = (profile) => {
   const title = `@${escapeHtml(profile.auraHandle)} joined Aura Protocol`;
   const description = escapeHtml(`${profile.whyAura || 'Aura Protocol launch profile'} X: @${profile.twitterHandle}`.slice(0, 190));
   const profileUrl = `${launchSiteUrl}p/${encodeURIComponent(profile.auraHandle)}`;
-  const imageUrl = `${launchSiteUrl}share/${encodeURIComponent(profile.auraHandle)}.svg`;
+  const imageUrl = `${launchSiteUrl}share/${encodeURIComponent(profile.auraHandle)}.png`;
   return `<!doctype html><html><head>
   <meta name="virtual-protocol-site-verification" content="09b6b84d1d285824b9d81ab48dca5201" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -228,6 +232,9 @@ const renderProfileDocument = (profile) => {
   <meta property="og:description" content="${description}">
   <meta property="og:url" content="${profileUrl}">
   <meta property="og:image" content="${imageUrl}">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:type" content="image/png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@${launchTwitterHandle}">
   <meta name="twitter:title" content="${title}">
@@ -342,6 +349,23 @@ const handler = async (req, res) => {
       return res.end('Aura share card not found');
     }
     return sendSvg(res, renderShareSvg(publicLaunchProfile(data, claim)));
+  }
+
+  const publicSharePngHandle = getRouteId(pathname, /^\/share\/([a-z0-9_]+)\.png$/);
+  if (req.method === 'GET' && publicSharePngHandle) {
+    const data = read();
+    const claim = data.launchClaims.find((item) => item.auraHandle === publicSharePngHandle.toLowerCase());
+    if (!claim) {
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      return res.end('Aura share card not found');
+    }
+    const svg = renderShareSvg(publicLaunchProfile(data, claim));
+    try {
+      const sharp = require('sharp');
+      return sendPng(res, await sharp(Buffer.from(svg)).png().toBuffer());
+    } catch {
+      return sendSvg(res, svg);
+    }
   }
 
   if (pathname.startsWith('/v1/')) {
@@ -475,6 +499,8 @@ const handler = async (req, res) => {
         const twitterHandle = assertText(input.twitterHandle, 'Twitter/X username is required.', 40).replace(/^@/, '');
         if (!/^[a-z0-9_]{2,32}$/.test(auraHandle)) throw new Error('Aura username can only use lowercase letters, numbers, and underscores.');
         if (!/^[a-zA-Z0-9_]{2,40}$/.test(twitterHandle)) throw new Error('Twitter/X username can only use letters, numbers, and underscores.');
+        const sameClaim = data.launchClaims.find((claim) => claim.auraHandle === auraHandle && claim.twitterHandle.toLowerCase() === twitterHandle.toLowerCase());
+        if (sameClaim) return send(res, 200, { data: publicLaunchClaim(sameClaim) });
         if (data.launchClaims.some((claim) => claim.auraHandle === auraHandle)) {
           const error = new Error('This Aura username is already claimed.');
           error.status = 409;
