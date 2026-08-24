@@ -66,13 +66,10 @@
     const fmt = (value) => new Intl.NumberFormat('en-US').format(value || 0);
     const params = new URLSearchParams(location.search);
     const handle = String(params.get('u') || '').replace(/^@/, '').toLowerCase();
+    const fallbackTwitter = String(params.get('x') || '').replace(/^@/, '');
+    const fallbackWhy = String(params.get('w') || '').trim();
     const setText = (id, value) => { document.querySelector(id).textContent = value; };
-    async function load() {
-      if (!handle) throw new Error('Missing Aura username. Open profile.html?u=username');
-      const res = await fetch(`/v1/launch/profiles/${encodeURIComponent(handle)}`);
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'Profile not found.');
-      const profile = json.data;
+    function render(profile) {
       document.title = `@${profile.auraHandle} - Aura Protocol`;
       setText('#handle', `@${profile.auraHandle}`);
       setText('#summary', `Aura launch profile connected to X @${profile.twitterHandle}. This profile is part of the Aura Protocol Solana launch leaderboard.`);
@@ -89,7 +86,31 @@
       const post = `I am builder @${profile.auraHandle} on Aura Protocol.\nX: @${profile.twitterHandle}\nWhy Aura: ${profile.whyAura}\nFollow @Aura_protocol_ #AuraProtocol #Solana`;
       document.querySelector('#share-x').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(post)}&url=${encodeURIComponent(profile.profileUrl)}`;
     }
+    function fallbackProfile() {
+      if (!handle || !fallbackTwitter) return null;
+      const query = new URLSearchParams({ x: fallbackTwitter, w: fallbackWhy || 'I want Aura because internet should be coordinated by the people who provide it.' }).toString();
+      return {
+        auraHandle: handle,
+        twitterHandle: fallbackTwitter,
+        twitterUrl: `https://x.com/${fallbackTwitter}`,
+        profileUrl: `https://www.auraprotocol.space/p/${encodeURIComponent(handle)}?${query}`,
+        shareImage: `https://www.auraprotocol.space/share/${encodeURIComponent(handle)}.png?${query}`,
+        whyAura: fallbackWhy || 'I want Aura because internet should be coordinated by the people who provide it.',
+        state: 'PREVIEW LINK',
+        score: 1300,
+        estimatedAirdrop: 2340
+      };
+    }
+    async function load() {
+      if (!handle) throw new Error('Missing Aura username. Open profile.html?u=username');
+      const res = await fetch(`/v1/launch/profiles/${encodeURIComponent(handle)}`);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Profile not found.');
+      render(json.data);
+    }
     load().catch((error) => {
+      const fallback = fallbackProfile();
+      if (fallback) return render(fallback);
       setText('#handle', 'Profile not found');
       setText('#summary', error.message);
       document.querySelector('.proof-card').innerHTML = '<div class="proof-row"><small>NEXT STEP</small><p>Go back to the claim page and create the Aura username first.</p><a class="button" href="claim.html">Claim username ↗</a></div>';

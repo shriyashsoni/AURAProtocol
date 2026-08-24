@@ -174,6 +174,16 @@ test('launch claim verifies social proof and blocks duplicate usernames', async 
   const shareCard = await fetch(`http://localhost:${port}/share/early_builder.svg`);
   assert.equal(shareCard.status, 200);
   assert.match(await shareCard.text(), /I AM BUILDER/);
+  const statelessProfile = await fetch(`http://localhost:${port}/p/stateless_builder?x=stateless_x&w=${encodeURIComponent('I want Aura because the preview should carry my exact words.')}`);
+  assert.equal(statelessProfile.status, 200);
+  const statelessHtml = await statelessProfile.text();
+  assert.match(statelessHtml, /twitter:image/);
+  assert.match(statelessHtml, /preview should carry my exact words/);
+  const statelessImage = await fetch(`http://localhost:${port}/share/stateless_builder.svg?x=stateless_x&w=${encodeURIComponent('I want Aura because the preview should carry my exact words.')}`);
+  assert.equal(statelessImage.status, 200);
+  const statelessSvg = await statelessImage.text();
+  assert.match(statelessSvg, /@stateless_builder/);
+  assert.match(statelessSvg, /preview should carry my exact words/);
   const updated = await request('/v1/launch/claim/engagement', {
     auraHandle: 'early_builder',
     twitterHandle: 'early_builder_x',

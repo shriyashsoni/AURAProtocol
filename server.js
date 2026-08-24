@@ -129,10 +129,25 @@ const launchEngagement = (input) => ({
   reposts: Math.max(0, Math.min(100000, Number.parseInt(input.reposts || 0, 10) || 0)),
   replies: Math.max(0, Math.min(100000, Number.parseInt(input.replies || 0, 10) || 0))
 });
+const defaultWhyAura = 'I want Aura because internet should be coordinated by the people who provide it.';
+const shareQuery = (claim) => {
+  const params = new URLSearchParams();
+  if (claim.twitterHandle) params.set('x', claim.twitterHandle);
+  if (claim.whyAura) params.set('w', claim.whyAura);
+  return params.toString();
+};
+const profileUrlFor = (claim) => {
+  const query = shareQuery(claim);
+  return `${launchSiteUrl}p/${encodeURIComponent(claim.auraHandle)}${query ? `?${query}` : ''}`;
+};
+const shareImageFor = (claim, ext = 'png') => {
+  const query = shareQuery(claim);
+  return `${launchSiteUrl}share/${encodeURIComponent(claim.auraHandle)}.${ext}${query ? `?${query}` : ''}`;
+};
 const publicLaunchClaim = (claim) => ({
   ...claim,
-  profileUrl: `${launchSiteUrl}p/${encodeURIComponent(claim.auraHandle)}`,
-  shareImage: `${launchSiteUrl}share/${encodeURIComponent(claim.auraHandle)}.png`,
+  profileUrl: profileUrlFor(claim),
+  shareImage: shareImageFor(claim),
   score: launchScore(claim),
   estimatedAirdrop: Math.floor(launchScore(claim) * 1.8)
 });
@@ -144,9 +159,9 @@ const publicLaunchProfile = (data, claim) => {
     twitterHandle: claim.twitterHandle,
     twitterUrl: `https://x.com/${claim.twitterHandle}`,
     officialTwitter: `https://x.com/${launchTwitterHandle}`,
-    profileUrl: `${launchSiteUrl}p/${encodeURIComponent(claim.auraHandle)}`,
-    shareImage: `${launchSiteUrl}share/${encodeURIComponent(claim.auraHandle)}.png`,
-    whyAura: claim.whyAura || profile?.bio || 'I want Aura because internet should be coordinated by the people who provide it.',
+    profileUrl: profileUrlFor(claim),
+    shareImage: shareImageFor(claim),
+    whyAura: claim.whyAura || profile?.bio || defaultWhyAura,
     state: claim.state,
     score: launchScore(claim),
     estimatedAirdrop: Math.floor(launchScore(claim) * 1.8),
@@ -155,6 +170,41 @@ const publicLaunchProfile = (data, claim) => {
     updatedAt: claim.updatedAt,
     profile: profile ? publicProfile(data, profile) : null
   };
+};
+const previewProfileFromUrl = (handle, searchParams) => {
+  const twitterHandle = String(searchParams.get('x') || '').replace(/^@/, '').trim();
+  const whyAura = String(searchParams.get('w') || '').trim();
+  if (!twitterHandle && !whyAura) return null;
+  const claim = {
+    auraHandle: handle,
+    twitterHandle: /^[a-zA-Z0-9_]{2,40}$/.test(twitterHandle) ? twitterHandle : 'aura_builder',
+    whyAura: whyAura.slice(0, 280) || defaultWhyAura,
+    followed: true,
+    engagement: {},
+    state: 'PREVIEW_LINK',
+    createdAt: now(),
+    updatedAt: now()
+  };
+  return {
+    auraHandle: claim.auraHandle,
+    twitterHandle: claim.twitterHandle,
+    twitterUrl: `https://x.com/${claim.twitterHandle}`,
+    officialTwitter: `https://x.com/${launchTwitterHandle}`,
+    profileUrl: profileUrlFor(claim),
+    shareImage: shareImageFor(claim),
+    whyAura: claim.whyAura,
+    state: claim.state,
+    score: launchScore(claim),
+    estimatedAirdrop: Math.floor(launchScore(claim) * 1.8),
+    engagement: claim.engagement,
+    createdAt: claim.createdAt,
+    updatedAt: claim.updatedAt,
+    profile: null
+  };
+};
+const resolveLaunchProfile = (data, handle, searchParams) => {
+  const claim = data.launchClaims.find((item) => item.auraHandle === handle.toLowerCase());
+  return claim ? publicLaunchProfile(data, claim) : previewProfileFromUrl(handle.toLowerCase(), searchParams);
 };
 const launchState = (data) => ({
   postTemplate: launchPostTemplate,
@@ -220,8 +270,9 @@ const renderShareSvg = (profile) => {
 const renderProfileDocument = (profile) => {
   const title = `@${escapeHtml(profile.auraHandle)} joined Aura Protocol`;
   const description = escapeHtml(`${profile.whyAura || 'Aura Protocol launch profile'} X: @${profile.twitterHandle}`.slice(0, 190));
-  const profileUrl = `${launchSiteUrl}p/${encodeURIComponent(profile.auraHandle)}`;
-  const imageUrl = `${launchSiteUrl}share/${encodeURIComponent(profile.auraHandle)}.png`;
+  const profileUrl = profile.profileUrl || `${launchSiteUrl}p/${encodeURIComponent(profile.auraHandle)}`;
+  const imageUrl = profile.shareImage || `${launchSiteUrl}share/${encodeURIComponent(profile.auraHandle)}.png`;
+  const clientUrl = `/profile.html?u=${encodeURIComponent(profile.auraHandle)}&x=${encodeURIComponent(profile.twitterHandle)}&w=${encodeURIComponent(profile.whyAura || '')}`;
   return `<!doctype html><html><head>
   <meta name="virtual-protocol-site-verification" content="09b6b84d1d285824b9d81ab48dca5201" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -240,8 +291,8 @@ const renderProfileDocument = (profile) => {
   <meta name="twitter:title" content="${title}">
   <meta name="twitter:description" content="${description}">
   <meta name="twitter:image" content="${imageUrl}">
-  <meta http-equiv="refresh" content="0; url=/profile.html?u=${encodeURIComponent(profile.auraHandle)}">
-  </head><body><a href="/profile.html?u=${encodeURIComponent(profile.auraHandle)}">Open ${title}</a></body></html>`;
+  <meta http-equiv="refresh" content="0; url=${clientUrl}">
+  </head><body><a href="${clientUrl}">Open ${title}</a></body></html>`;
 };
 const gameState = (data) => ({
   quests: questCatalog,
@@ -332,34 +383,34 @@ const handler = async (req, res) => {
   const publicProfileHandle = getRouteId(pathname, /^\/p\/([a-z0-9_]+)$/);
   if (req.method === 'GET' && publicProfileHandle) {
     const data = read();
-    const claim = data.launchClaims.find((item) => item.auraHandle === publicProfileHandle.toLowerCase());
-    if (!claim) {
+    const profile = resolveLaunchProfile(data, publicProfileHandle, url.searchParams);
+    if (!profile) {
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       return res.end('Aura profile not found');
     }
-    return sendHtml(res, renderProfileDocument(publicLaunchProfile(data, claim)));
+    return sendHtml(res, renderProfileDocument(profile));
   }
 
   const publicShareHandle = getRouteId(pathname, /^\/share\/([a-z0-9_]+)\.svg$/);
   if (req.method === 'GET' && publicShareHandle) {
     const data = read();
-    const claim = data.launchClaims.find((item) => item.auraHandle === publicShareHandle.toLowerCase());
-    if (!claim) {
+    const profile = resolveLaunchProfile(data, publicShareHandle, url.searchParams);
+    if (!profile) {
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       return res.end('Aura share card not found');
     }
-    return sendSvg(res, renderShareSvg(publicLaunchProfile(data, claim)));
+    return sendSvg(res, renderShareSvg(profile));
   }
 
   const publicSharePngHandle = getRouteId(pathname, /^\/share\/([a-z0-9_]+)\.png$/);
   if (req.method === 'GET' && publicSharePngHandle) {
     const data = read();
-    const claim = data.launchClaims.find((item) => item.auraHandle === publicSharePngHandle.toLowerCase());
-    if (!claim) {
+    const profile = resolveLaunchProfile(data, publicSharePngHandle, url.searchParams);
+    if (!profile) {
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       return res.end('Aura share card not found');
     }
-    const svg = renderShareSvg(publicLaunchProfile(data, claim));
+    const svg = renderShareSvg(profile);
     try {
       const sharp = require('sharp');
       return sendPng(res, await sharp(Buffer.from(svg)).png().toBuffer());
