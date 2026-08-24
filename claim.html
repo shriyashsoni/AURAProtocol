@@ -153,11 +153,8 @@
     function generatedPostText() {
       const auraHandle = cleanHandle(formEl.elements.auraHandle.value).toLowerCase() || 'aura_builder';
       const twitterHandle = cleanHandle(formEl.elements.twitterHandle.value) || 'your_x_username';
-      const siteUrl = launch.siteUrl || 'https://www.auraprotocol.space/';
       const officialHandle = launch.twitterHandle || 'Aura_protocol_';
-      const why = String(formEl.elements.whyAura.value || '').trim();
-      const shortWhy = why.length > 72 ? `${why.slice(0, 69)}...` : why;
-      return `I am builder @${auraHandle} on Aura Protocol.\nX: @${twitterHandle}\nWhy Aura: ${shortWhy}\nFollow @${officialHandle} #AuraProtocol #Solana`;
+      return `I am builder @${auraHandle} on Aura Protocol.\nX: @${twitterHandle}\nMy Aura profile card is live.\nFollow @${officialHandle} #AuraProtocol #Solana`;
     }
     function xIntent(text, url) {
       return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;

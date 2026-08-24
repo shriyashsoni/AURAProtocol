@@ -66,8 +66,18 @@
     const fmt = (value) => new Intl.NumberFormat('en-US').format(value || 0);
     const params = new URLSearchParams(location.search);
     const handle = String(params.get('u') || '').replace(/^@/, '').toLowerCase();
-    const fallbackTwitter = String(params.get('x') || '').replace(/^@/, '');
-    const fallbackWhy = String(params.get('w') || '').trim();
+    function decodeShareData(value) {
+      try {
+        const base64 = String(value || '').replace(/-/g, '+').replace(/_/g, '/');
+        const json = decodeURIComponent(Array.from(atob(base64), (char) => `%${char.charCodeAt(0).toString(16).padStart(2, '0')}`).join(''));
+        return JSON.parse(json);
+      } catch {
+        return {};
+      }
+    }
+    const shareData = decodeShareData(params.get('s'));
+    const fallbackTwitter = String(shareData.x || params.get('x') || '').replace(/^@/, '');
+    const fallbackWhy = String(shareData.w || params.get('w') || '').trim();
     const setText = (id, value) => { document.querySelector(id).textContent = value; };
     function render(profile) {
       document.title = `@${profile.auraHandle} - Aura Protocol`;
@@ -88,7 +98,7 @@
     }
     function fallbackProfile() {
       if (!handle || !fallbackTwitter) return null;
-      const query = new URLSearchParams({ x: fallbackTwitter, w: fallbackWhy || 'I want Aura because internet should be coordinated by the people who provide it.' }).toString();
+      const query = new URLSearchParams({ s: params.get('s') || btoa(JSON.stringify({ x: fallbackTwitter, w: fallbackWhy })).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') }).toString();
       return {
         auraHandle: handle,
         twitterHandle: fallbackTwitter,

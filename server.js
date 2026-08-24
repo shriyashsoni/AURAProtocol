@@ -130,10 +130,24 @@ const launchEngagement = (input) => ({
   replies: Math.max(0, Math.min(100000, Number.parseInt(input.replies || 0, 10) || 0))
 });
 const defaultWhyAura = 'I want Aura because internet should be coordinated by the people who provide it.';
+const encodeShareData = (claim) => Buffer.from(JSON.stringify({
+  x: claim.twitterHandle || 'aura_builder',
+  w: (claim.whyAura || defaultWhyAura).slice(0, 180)
+})).toString('base64url');
+const decodeShareData = (value) => {
+  try {
+    const parsed = JSON.parse(Buffer.from(String(value || ''), 'base64url').toString('utf8'));
+    return {
+      x: String(parsed.x || '').replace(/^@/, '').trim(),
+      w: String(parsed.w || '').trim()
+    };
+  } catch {
+    return { x: '', w: '' };
+  }
+};
 const shareQuery = (claim) => {
   const params = new URLSearchParams();
-  if (claim.twitterHandle) params.set('x', claim.twitterHandle);
-  if (claim.whyAura) params.set('w', claim.whyAura);
+  params.set('s', encodeShareData(claim));
   return params.toString();
 };
 const profileUrlFor = (claim) => {
@@ -172,8 +186,9 @@ const publicLaunchProfile = (data, claim) => {
   };
 };
 const previewProfileFromUrl = (handle, searchParams) => {
-  const twitterHandle = String(searchParams.get('x') || '').replace(/^@/, '').trim();
-  const whyAura = String(searchParams.get('w') || '').trim();
+  const decoded = decodeShareData(searchParams.get('s'));
+  const twitterHandle = (decoded.x || String(searchParams.get('x') || '')).replace(/^@/, '').trim();
+  const whyAura = (decoded.w || String(searchParams.get('w') || '')).trim();
   if (!twitterHandle && !whyAura) return null;
   const claim = {
     auraHandle: handle,
@@ -247,32 +262,61 @@ const ensureLaunchProfile = async (data, auraHandle, twitterHandle, whyAura) => 
   }
   return profile;
 };
+const wrapSvgText = (value, maxChars = 42, maxLines = 3) => {
+  const words = String(value || '').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+  const lines = [];
+  let line = '';
+  for (const word of words) {
+    const next = line ? `${line} ${word}` : word;
+    if (next.length > maxChars && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = next;
+    }
+    if (lines.length === maxLines) break;
+  }
+  if (line && lines.length < maxLines) lines.push(line);
+  if (words.join(' ').length > lines.join(' ').length && lines.length) lines[lines.length - 1] = `${lines[lines.length - 1].replace(/\.*$/, '')}...`;
+  return lines.map((item, index) => `<tspan x="72" dy="${index === 0 ? 0 : 38}">${escapeHtml(item)}</tspan>`).join('');
+};
 const renderShareSvg = (profile) => {
   const handle = escapeHtml(profile.auraHandle || 'aura_builder');
   const twitter = escapeHtml(profile.twitterHandle || 'builder');
-  const why = escapeHtml((profile.whyAura || '').slice(0, 120));
-  return `<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1600" height="900" fill="#EAF6E7"/>
-  <defs><radialGradient id="g" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1120 320) rotate(115) scale(620 700)"><stop stop-color="white"/><stop offset=".48" stop-color="#D9EED7"/><stop offset="1" stop-color="#BFD9BB"/></radialGradient></defs>
-  <rect width="1600" height="900" fill="url(#g)" opacity=".9"/>
-  <g opacity=".55">${Array.from({ length: 28 }).map((_, i) => `<circle cx="${90 + i * 54}" cy="${70 + (i % 9) * 82}" r="${i % 2 ? 3 : 5}" fill="${i % 3 ? 'white' : '#0A0D0B'}" opacity="${i % 3 ? '.8' : '.16'}"/>`).join('')}</g>
-  <rect x="76" y="70" width="8" height="30" rx="4" fill="#6DCCA0"/><text x="108" y="98" fill="#0A0D0B" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" letter-spacing="14">AURA PROTOCOL</text>
-  <text x="96" y="248" fill="#0A0D0B" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="800" letter-spacing="-2">I AM BUILDER</text>
-  <text x="96" y="350" fill="#0A0D0B" font-family="Arial, Helvetica, sans-serif" font-size="96" font-weight="800">@${handle}</text>
-  <text x="102" y="430" fill="#233329" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Claimed Aura profile on Solana.</text>
-  <text x="102" y="502" fill="#4E6254" font-family="Arial, Helvetica, sans-serif" font-size="28">X: @${twitter}</text>
-  <text x="102" y="562" fill="#4E6254" font-family="Arial, Helvetica, sans-serif" font-size="28">${why}</text>
-  <rect x="102" y="690" width="530" height="88" rx="44" fill="#0A0D0B"/><text x="148" y="746" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="800">www.auraprotocol.space</text>
-  <g transform="translate(990 190)"><rect width="430" height="430" rx="215" fill="white" fill-opacity=".38"/><rect x="50" y="50" width="330" height="330" rx="165" fill="#DCEEDB"/><path d="M215 92C280 178 324 274 342 382H88C106 274 150 178 215 92Z" fill="#0A0D0B"/><path d="M98 250C172 190 258 190 332 250L298 300C245 260 185 260 132 300L98 250Z" fill="white"/><path d="M144 322C190 292 240 292 286 322L254 370C228 356 202 356 176 370L144 322Z" fill="white"/></g>
-  <text x="1100" y="810" fill="#0A0D0B" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="8">#AURA #SOLANA #DEPIN</text>
+  const whyLines = wrapSvgText(profile.whyAura || defaultWhyAura, 46, 3);
+  return `<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" rx="0" fill="#EAF6E7"/>
+  <defs>
+    <radialGradient id="g" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(850 220) rotate(120) scale(520 520)"><stop stop-color="#FFFFFF"/><stop offset="0.52" stop-color="#DCEEDB"/><stop offset="1" stop-color="#C4DDBF"/></radialGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="28" stdDeviation="28" flood-color="#1A281D" flood-opacity="0.18"/></filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)" opacity="0.92"/>
+  <g opacity="0.6">
+    ${Array.from({ length: 34 }).map((_, i) => `<circle cx="${38 + (i * 71) % 1120}" cy="${36 + (i * 53) % 560}" r="${i % 2 ? 2.2 : 3.6}" fill="${i % 3 ? '#FFFFFF' : '#0A0D0B'}" opacity="${i % 3 ? '.85' : '.13'}"/>`).join('')}
+  </g>
+  <rect x="72" y="58" width="7" height="28" rx="4" fill="#66C99C"/>
+  <text x="92" y="80" fill="#42564A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">AURA PROFILE CARD</text>
+  <text x="72" y="178" fill="#070908" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="800">I am builder</text>
+  <text x="72" y="265" fill="#425D4B" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="800">@${handle}</text>
+  <text x="72" y="330" fill="#111713" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700">Why Aura?</text>
+  <text x="72" y="374" fill="#455D4C" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="500">${whyLines}</text>
+  <rect x="72" y="510" width="330" height="64" rx="32" fill="#080C09"/>
+  <text x="108" y="551" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="800">@${twitter}</text>
+  <text x="72" y="602" fill="#42564A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">www.auraprotocol.space · @Aura_protocol_</text>
+  <g filter="url(#soft)" transform="translate(770 132)">
+    <rect x="0" y="0" width="310" height="310" rx="155" fill="#FFFFFF" fill-opacity="0.45"/>
+    <rect x="35" y="35" width="240" height="240" rx="120" fill="#DDEEDB"/>
+    <path d="M155 72C202 135 234 204 248 282H62C76 204 108 135 155 72Z" fill="#070908"/>
+    <path d="M74 188C128 144 182 144 236 188L211 226C174 198 136 198 99 226L74 188Z" fill="#FFFFFF"/>
+    <path d="M110 240C140 220 170 220 200 240L176 276C162 268 148 268 134 276L110 240Z" fill="#FFFFFF"/>
+  </g>
 </svg>`;
-};
-const renderProfileDocument = (profile) => {
+};const renderProfileDocument = (profile) => {
   const title = `@${escapeHtml(profile.auraHandle)} joined Aura Protocol`;
   const description = escapeHtml(`${profile.whyAura || 'Aura Protocol launch profile'} X: @${profile.twitterHandle}`.slice(0, 190));
   const profileUrl = profile.profileUrl || `${launchSiteUrl}p/${encodeURIComponent(profile.auraHandle)}`;
   const imageUrl = profile.shareImage || `${launchSiteUrl}share/${encodeURIComponent(profile.auraHandle)}.png`;
-  const clientUrl = `/profile.html?u=${encodeURIComponent(profile.auraHandle)}&x=${encodeURIComponent(profile.twitterHandle)}&w=${encodeURIComponent(profile.whyAura || '')}`;
+  const clientUrl = `/profile.html?u=${encodeURIComponent(profile.auraHandle)}&s=${encodeURIComponent(encodeShareData(profile))}`;
   return `<!doctype html><html><head>
   <meta name="virtual-protocol-site-verification" content="09b6b84d1d285824b9d81ab48dca5201" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -909,3 +953,4 @@ if (require.main === module) {
 }
 
 module.exports = handler;
+
