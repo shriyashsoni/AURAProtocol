@@ -297,11 +297,12 @@ const renderShareSvg = (profile) => {
   <rect x="72" y="58" width="7" height="28" rx="4" fill="#66C99C"/>
   <text x="92" y="80" fill="#42564A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">AURA PROFILE CARD</text>
   <text x="72" y="178" fill="#070908" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="800">I am builder</text>
-  <text x="72" y="265" fill="#425D4B" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="800">@${handle}</text>
-  <text x="72" y="330" fill="#111713" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700">Why Aura?</text>
-  <text x="72" y="374" fill="#455D4C" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="500">${whyLines}</text>
+  <text x="72" y="265" fill="#425D4B" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="800">@${twitter}</text>
+  <text x="72" y="314" fill="#42564A" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="800">Aura username: ${handle}</text>
+  <text x="72" y="365" fill="#111713" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700">Why Aura?</text>
+  <text x="72" y="410" fill="#455D4C" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="500">${whyLines}</text>
   <rect x="72" y="510" width="330" height="64" rx="32" fill="#080C09"/>
-  <text x="108" y="551" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="800">@${twitter}</text>
+  <text x="108" y="551" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="800">@Aura_protocol_</text>
   <text x="72" y="602" fill="#42564A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">www.auraprotocol.space · @Aura_protocol_</text>
   <g filter="url(#soft)" transform="translate(770 132)">
     <rect x="0" y="0" width="310" height="310" rx="155" fill="#FFFFFF" fill-opacity="0.45"/>

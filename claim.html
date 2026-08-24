@@ -78,9 +78,9 @@
       <div class="share-preview" aria-label="Aura Protocol share image preview"></div>
       <div class="live-card" id="live-card">
         <small>AURA PROFILE CARD</small>
-        <h2>I am builder<br><span id="card-handle">@aura_builder</span></h2>
+        <h2>I am builder<br><span id="card-handle">@your_x_username</span></h2>
         <p id="card-why">I want Aura because internet should be coordinated by the people who provide it.</p>
-        <b id="card-x">@your_x_username</b>
+        <b id="card-x">Aura username: aura_builder</b>
       </div>
       <div class="claim-actions">
         <a class="button white" href="assets/aura-claim-card.svg" download>Download image <b>↗</b></a>
@@ -154,7 +154,7 @@
       const auraHandle = cleanHandle(formEl.elements.auraHandle.value).toLowerCase() || 'aura_builder';
       const twitterHandle = cleanHandle(formEl.elements.twitterHandle.value) || 'your_x_username';
       const officialHandle = launch.twitterHandle || 'Aura_protocol_';
-      return `I am builder @${auraHandle} on Aura Protocol.\nX: @${twitterHandle}\nMy Aura profile card is live.\nFollow @${officialHandle} #AuraProtocol #Solana`;
+      return `I am builder @${twitterHandle} on Aura Protocol.\nAura username: ${auraHandle}\nMy Aura profile card is live.\nFollow @${officialHandle} #AuraProtocol #Solana`;
     }
     function xIntent(text, url) {
       return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
@@ -175,8 +175,8 @@
     function renderLiveCard() {
       const auraHandle = cleanHandle(formEl.elements.auraHandle.value).toLowerCase() || 'aura_builder';
       const twitterHandle = cleanHandle(formEl.elements.twitterHandle.value) || 'your_x_username';
-      document.querySelector('#card-handle').textContent = `@${auraHandle}`;
-      document.querySelector('#card-x').textContent = `@${twitterHandle}`;
+      document.querySelector('#card-handle').textContent = `@${twitterHandle}`;
+      document.querySelector('#card-x').textContent = `Aura username: ${auraHandle}`;
       document.querySelector('#card-why').textContent = formEl.elements.whyAura.value || 'I want Aura because internet should be coordinated by the people who provide it.';
     }
     function syncDraftUi(forcePost = false) {

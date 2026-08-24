@@ -173,7 +173,10 @@ test('launch claim verifies social proof and blocks duplicate usernames', async 
   assert.match(sharePng.headers.get('content-type'), /image\/(png|svg\+xml)/);
   const shareCard = await fetch(`http://localhost:${port}/share/early_builder.svg`);
   assert.equal(shareCard.status, 200);
-  assert.match(await shareCard.text(), /I am builder/);
+  const shareCardSvg = await shareCard.text();
+  assert.match(shareCardSvg, /I am builder/);
+  assert.match(shareCardSvg, /@early_builder_x/);
+  assert.match(shareCardSvg, /Aura username: early_builder/);
   const statelessProfile = await fetch(`http://localhost:${port}/p/stateless_builder?x=stateless_x&w=${encodeURIComponent('I want Aura because the preview should carry my exact words.')}`);
   assert.equal(statelessProfile.status, 200);
   const statelessHtml = await statelessProfile.text();
@@ -182,7 +185,8 @@ test('launch claim verifies social proof and blocks duplicate usernames', async 
   const statelessImage = await fetch(`http://localhost:${port}/share/stateless_builder.svg?x=stateless_x&w=${encodeURIComponent('I want Aura because the preview should carry my exact words.')}`);
   assert.equal(statelessImage.status, 200);
   const statelessSvg = await statelessImage.text();
-  assert.match(statelessSvg, /@stateless_builder/);
+  assert.match(statelessSvg, /@stateless_x/);
+  assert.match(statelessSvg, /Aura username: stateless_builder/);
   assert.match(statelessSvg, /preview should carry[\s\S]*my exact words/);
   const updated = await request('/v1/launch/claim/engagement', {
     auraHandle: 'early_builder',

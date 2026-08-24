@@ -93,7 +93,7 @@
       setText('#user-x', `@${profile.twitterHandle}`);
       document.querySelector('#user-x').href = profile.twitterUrl;
       document.querySelector('#twitter').href = profile.twitterUrl;
-      const post = `I am builder @${profile.auraHandle} on Aura Protocol.\nX: @${profile.twitterHandle}\nWhy Aura: ${profile.whyAura}\nFollow @Aura_protocol_ #AuraProtocol #Solana`;
+      const post = `I am builder @${profile.twitterHandle} on Aura Protocol.\nAura username: ${profile.auraHandle}\nWhy Aura: ${profile.whyAura}\nFollow @Aura_protocol_ #AuraProtocol #Solana`;
       document.querySelector('#share-x').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(post)}&url=${encodeURIComponent(profile.profileUrl)}`;
     }
     function fallbackProfile() {
