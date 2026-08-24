@@ -1,0 +1,240 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Aura Quest Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="brand.css">
+  <style>
+    .arena{min-height:calc(100vh - 120px);display:grid;grid-template-columns:320px 1fr 340px;border-left:1px solid var(--l);border-right:1px solid var(--l)}
+    .arena aside,.arena main{min-width:0}
+    .profile,.rewards{border-right:1px solid var(--l);padding:24px;background:rgba(0,0,0,.55)}
+    .rewards{border-right:0;border-left:1px solid var(--l)}
+    .profile h1{font-size:34px;margin:20px 0 10px;letter-spacing:-.05em}
+    .profile p,.rewards p{color:#999;font-size:13px;line-height:1.55}
+    .quest-main{padding:26px}
+    .ticker{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--l);margin-bottom:24px}
+    .ticker div{padding:18px;border-right:1px solid var(--l)}
+    .ticker div:last-child{border-right:0}
+    .ticker span,.panel-title span{display:block;color:#888;font:11px 'DM Mono';margin-bottom:12px}
+    .ticker b{font-size:28px;letter-spacing:-.04em}
+    .form-stack{display:grid;gap:12px;margin-top:24px}
+    .form-stack label{font:11px 'DM Mono';color:#999}
+    .form-stack input,.form-stack select{width:100%;display:block;margin-top:8px;background:#090909;border:1px solid #333;color:#fff;padding:12px;font:14px Manrope}
+    button{border:1px solid #fff;background:#fff;color:#000;padding:12px 14px;font:800 13px Manrope;cursor:pointer}
+    button.dark{background:#050505;color:#fff}
+    button:disabled{opacity:.45;cursor:not-allowed}
+    .panel{border:1px solid var(--l);background:#050505;margin-bottom:24px}
+    .panel-title{height:58px;border-bottom:1px solid var(--l);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+    .panel-title h2{font-size:16px;margin:0}
+    .quest-table{width:100%;border-collapse:collapse}
+    .quest-table th,.quest-table td{border-bottom:1px solid #202020;padding:14px;text-align:left;font-size:13px;vertical-align:top}
+    .quest-table th{font:11px 'DM Mono';color:#999}
+    .quest-table td p{margin:5px 0 0;color:#999;line-height:1.45}
+    .chip{display:inline-block;border:1px solid #333;padding:5px 8px;font:10px 'DM Mono';color:#bbb}
+    .account-card{border:1px solid var(--l);padding:17px;margin-top:18px}
+    .account-card strong{display:block;font-size:22px;margin-bottom:8px;overflow-wrap:anywhere}
+    .account-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
+    .account-grid div{border:1px solid #222;padding:12px}
+    .account-grid span{display:block;font:10px 'DM Mono';color:#888;margin-bottom:9px}
+    .account-grid b{font-size:20px}
+    .leader-row{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;border-bottom:1px solid #202020;padding:13px 0}
+    .leader-row:last-child{border-bottom:0}
+    .rank{width:28px;height:28px;border:1px solid #555;display:grid;place-items:center;font:11px 'DM Mono'}
+    .leader-row strong{display:block}
+    .leader-row small{color:#888}
+    .log{margin-top:16px;border:1px solid #202020;background:#090909;color:#aaa;padding:14px;min-height:84px;font:12px/1.6 'DM Mono';white-space:pre-wrap}
+    .proof-row{display:grid;grid-template-columns:1fr auto;gap:10px}
+    @media(max-width:1180px){.arena{grid-template-columns:1fr}.profile,.rewards{border:0;border-bottom:1px solid var(--l)}.ticker{grid-template-columns:repeat(2,1fr)}.ticker div:nth-child(2){border-right:0}.ticker div:nth-child(-n+2){border-bottom:1px solid var(--l)}}
+    @media(max-width:660px){.page,header{width:calc(100% - 24px)}.quest-main,.profile,.rewards{padding:17px}.ticker,.account-grid{grid-template-columns:1fr}.ticker div{border-right:0;border-bottom:1px solid var(--l)}.ticker div:last-child{border-bottom:0}.quest-table,.quest-table thead,.quest-table tbody,.quest-table tr,.quest-table th,.quest-table td{display:block}.quest-table thead{display:none}.quest-table tr{border-bottom:1px solid var(--l)}.quest-table td{border-bottom:0}.proof-row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <script>if(localStorage.getItem('aura-session')!=='granted') location.replace('login.html');</script>
+  <div class="grid"></div>
+  <header>
+    <a class="logo" href="index.html"><span class="mark"><b>A</b></span>AURA <i>PROTOCOL</i></a>
+    <nav><a href="dashboard.html">Console</a><a class="selected" href="game.html">Arena</a><a href="architecture.html">Architecture</a><a href="developers.html">Developers</a></nav>
+    <a class="navbtn" href="docs.html">Docs <b>↗</b></a>
+  </header>
+  <section class="page arena">
+    <aside class="profile">
+      <div class="pill">●&nbsp; PROFILE CLAIM</div>
+      <h1>Quest Arena</h1>
+      <p>Build a profile, link a social handle, complete repeatable tasks, stake earned points, and claim campaign rewards.</p>
+      <form class="form-stack" id="profile-form">
+        <label>Aura handle<input name="handle" value="aura_builder"></label>
+        <label>Display name<input name="displayName" value="Aura Builder"></label>
+        <label>Wallet or Solana identity<input name="wallet" value="devnet-wallet-placeholder"></label>
+        <button>Claim profile</button>
+      </form>
+      <form class="form-stack" id="twitter-form">
+        <label>Twitter/X handle<input name="twitter" value="aura_protocol_user"></label>
+        <button class="dark">Link Twitter</button>
+      </form>
+      <div class="account-card" id="account-card">
+        <strong>No profile selected</strong>
+        <p>Create or select a profile to begin quests.</p>
+      </div>
+      <div class="log" id="log">Ready. Social verification is simulated for this private build until OAuth credentials are connected.</div>
+    </aside>
+    <main class="quest-main">
+      <div class="ticker" id="ticker">
+        <div><span>EARNED</span><b>0</b></div>
+        <div><span>STAKED</span><b>0</b></div>
+        <div><span>CLAIMABLE</span><b>0</b></div>
+        <div><span>RANK SCORE</span><b>0</b></div>
+      </div>
+      <section class="panel">
+        <div class="panel-title"><h2>Quest markets</h2><span>CLICK TASKS / EARN POINTS</span></div>
+        <table class="quest-table">
+          <thead><tr><th>Quest</th><th>Type</th><th>Reward</th><th>Proof</th><th>Action</th></tr></thead>
+          <tbody id="quest-list"></tbody>
+        </table>
+      </section>
+      <section class="panel">
+        <div class="panel-title"><h2>Recent completions</h2><span>LOCAL LEDGER</span></div>
+        <div id="completion-list"></div>
+      </section>
+    </main>
+    <aside class="rewards">
+      <section class="panel">
+        <div class="panel-title"><h2>Stake and claim</h2><span>PROTOTYPE VAULT</span></div>
+        <div style="padding:18px">
+          <form class="form-stack" id="stake-form" style="margin-top:0">
+            <label>Amount<input name="amount" type="number" min="10" value="100"></label>
+            <label>Lock period<select name="lockDays"><option value="30">30 days</option><option value="90">90 days</option><option value="180">180 days</option></select></label>
+            <button>Stake points</button>
+          </form>
+          <button class="dark" id="claim" style="margin-top:12px;width:100%">Claim campaign rewards</button>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel-title"><h2>Leaderboard</h2><span>RANK SCORE</span></div>
+        <div id="leaderboard" style="padding:0 18px 8px"></div>
+      </section>
+    </aside>
+  </section>
+  <script>
+    let state = { quests: [], profiles: [], completions: [], leaderboard: [] };
+    let activeProfileId = localStorage.getItem('aura-active-profile');
+    const fmt = (value) => new Intl.NumberFormat('en-US').format(value || 0);
+    const api = async (route, options = {}) => {
+      const res = await fetch(route, { headers: { 'Content-Type': 'application/json' }, ...options });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      return json.data;
+    };
+    const post = (route, payload) => api(route, { method: 'POST', body: JSON.stringify(payload) });
+    const log = (message) => { document.querySelector('#log').textContent = message; };
+    const activeProfile = () => state.profiles.find((profile) => profile.id === activeProfileId) || state.profiles[0] || null;
+    function questDone(profile, quest) {
+      return profile && !quest.repeatable && state.completions.some((item) => item.profileId === profile.id && item.questId === quest.id);
+    }
+    function render() {
+      const profile = activeProfile();
+      if (profile) {
+        activeProfileId = profile.id;
+        localStorage.setItem('aura-active-profile', profile.id);
+      }
+      const score = profile ? profile.score : { earned: 0, staked: 0, claimable: 0, rankScore: 0 };
+      document.querySelector('#ticker').innerHTML = [
+        ['EARNED', score.earned],
+        ['STAKED', score.staked],
+        ['CLAIMABLE', score.claimable],
+        ['RANK SCORE', score.rankScore]
+      ].map(([label, value]) => `<div><span>${label}</span><b>${fmt(value)}</b></div>`).join('');
+      document.querySelector('#account-card').innerHTML = profile ? `
+        <strong>@${profile.handle}</strong>
+        <p>${profile.displayName}<br>${profile.wallet || 'No wallet attached'}<br>${profile.twitter ? 'Twitter: @' + profile.twitter.handle : 'Twitter not linked'}<br>Referral: ${profile.referralCode}</p>
+        <div class="account-grid">
+          <div><span>EARNED</span><b>${fmt(score.earned)}</b></div>
+          <div><span>CLAIMED</span><b>${fmt(score.claimed)}</b></div>
+        </div>` : '<strong>No profile selected</strong><p>Create or select a profile to begin quests.</p>';
+      document.querySelector('#quest-list').innerHTML = state.quests.map((quest) => {
+        const done = questDone(profile, quest);
+        return `<tr>
+          <td><strong>${quest.title}</strong><p>${quest.requirement}</p></td>
+          <td><span class="chip">${quest.type.toUpperCase()}</span></td>
+          <td>${fmt(quest.rewardPoints)} pts</td>
+          <td><input id="proof-${quest.id}" value="${quest.id === 'quest_share' ? 'https://x.com/demo/status/123' : quest.id === 'quest_referral' ? 'INVITE-AURA' : quest.id + '-proof'}" style="width:100%;background:#090909;border:1px solid #333;color:#fff;padding:10px"></td>
+          <td><button ${!profile || done ? 'disabled' : ''} data-quest="${quest.id}">${done ? 'Done' : 'Complete'}</button></td>
+        </tr>`;
+      }).join('');
+      document.querySelector('#completion-list').innerHTML = state.completions.slice(-8).reverse().map((item) => {
+        const quest = state.quests.find((q) => q.id === item.questId);
+        const owner = state.profiles.find((p) => p.id === item.profileId);
+        return `<div class="leader-row"><span class="rank">✓</span><div><strong>${quest ? quest.title : item.questId}</strong><small>@${owner ? owner.handle : 'unknown'} / ${item.proof}</small></div><b>${fmt(item.rewardPoints)}</b></div>`;
+      }).join('') || '<div class="leader-row"><span class="rank">0</span><div><strong>No completions yet</strong><small>Finish a quest to populate the ledger.</small></div><b>0</b></div>';
+      document.querySelector('#leaderboard').innerHTML = state.leaderboard.map((profile, index) => `
+        <div class="leader-row"><span class="rank">${index + 1}</span><div><strong>@${profile.handle}</strong><small>${profile.twitter ? '@' + profile.twitter.handle : 'social pending'}</small></div><b>${fmt(profile.score.rankScore)}</b></div>
+      `).join('') || '<div class="leader-row"><span class="rank">0</span><div><strong>No profiles yet</strong><small>Claim the first Aura profile.</small></div><b>0</b></div>';
+      document.querySelectorAll('[data-quest]').forEach((button) => button.addEventListener('click', completeQuest));
+    }
+    async function load() {
+      try {
+        state = await api('/v1/game');
+        render();
+      } catch (error) {
+        log('Start the backend first: npm run dev');
+      }
+    }
+    async function completeQuest(event) {
+      const profile = activeProfile();
+      if (!profile) return log('Claim a profile first.');
+      const questId = event.currentTarget.dataset.quest;
+      const proof = document.querySelector(`#proof-${questId}`).value;
+      try {
+        const result = await post(`/v1/quests/${questId}/complete`, { profileId: profile.id, proof });
+        log(`Quest complete: ${questId}\nReward: ${result.completion.rewardPoints} points`);
+        await load();
+      } catch (error) { log(error.message); }
+    }
+    document.querySelector('#profile-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = new FormData(event.target);
+      try {
+        const profile = await post('/v1/profiles', { handle: form.get('handle'), displayName: form.get('displayName'), wallet: form.get('wallet') });
+        activeProfileId = profile.id;
+        log(`Profile claimed: @${profile.handle}`);
+        await load();
+      } catch (error) { log(error.message); }
+    });
+    document.querySelector('#twitter-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const profile = activeProfile();
+      if (!profile) return log('Claim a profile first.');
+      try {
+        const form = new FormData(event.target);
+        await post(`/v1/profiles/${profile.id}/link-twitter`, { twitterHandle: form.get('twitter') });
+        log('Twitter identity linked for this private environment. OAuth can replace this endpoint later.');
+        await load();
+      } catch (error) { log(error.message); }
+    });
+    document.querySelector('#stake-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const profile = activeProfile();
+      if (!profile) return log('Claim a profile first.');
+      const form = new FormData(event.target);
+      try {
+        const result = await post(`/v1/profiles/${profile.id}/stake`, { amount: Number(form.get('amount')), lockDays: Number(form.get('lockDays')) });
+        log(`Staked ${result.stake.amount} campaign points.`);
+        await load();
+      } catch (error) { log(error.message); }
+    });
+    document.querySelector('#claim').addEventListener('click', async () => {
+      const profile = activeProfile();
+      if (!profile) return log('Claim a profile first.');
+      try {
+        const result = await post(`/v1/profiles/${profile.id}/claim`, {});
+        log(`Claimed ${result.claim.amount} campaign reward units.`);
+        await load();
+      } catch (error) { log(error.message); }
+    });
+    load();
+  </script>
+</body>
+</html>

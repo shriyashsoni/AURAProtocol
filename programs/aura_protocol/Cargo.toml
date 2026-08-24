@@ -1,0 +1,17 @@
+[package]
+name = "aura_protocol"
+version = "0.1.0"
+description = "Aura Protocol Solana WiFi DePIN program"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "aura_protocol"
+
+[features]
+default = []
+no-entrypoint = []
+cpi = ["no-entrypoint"]
+
+[dependencies]
+anchor-lang = "0.30.1"

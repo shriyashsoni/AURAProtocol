@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login - Aura</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="brand.css">
+  <style>
+    .login-wrap{min-height:calc(100vh - 120px);display:grid;grid-template-columns:1.1fr .9fr;gap:70px;align-items:center;padding:70px 0}
+    .login-wrap h1{font-size:clamp(54px,5vw,86px)}
+    .login-card{border:1px solid var(--l);background:#050505;padding:34px}
+    .login-card h2{font-size:28px;margin:0 0 12px;letter-spacing:-.05em}
+    .login-card p,.login-wrap p{color:#999;line-height:1.7}
+    .login-card form{display:grid;gap:15px;margin-top:25px}
+    .login-card label{font:11px 'DM Mono';color:#999}
+    .login-card input{width:100%;display:block;margin-top:8px;background:#090909;border:1px solid #333;color:#fff;padding:13px;font:14px Manrope}
+    .login-card button{border:1px solid #fff;background:#fff;color:#000;padding:14px 16px;font:800 13px Manrope;cursor:pointer}
+    .login-card small{display:block;color:#777;margin-top:16px;line-height:1.6}
+    .login-grid{display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--l);margin-top:34px}
+    .login-grid div{padding:18px;border-right:1px solid var(--l)}
+    .login-grid div:last-child{border-right:0}
+    .login-grid b{display:block;font-size:22px;margin-bottom:8px}
+    .login-grid span{font:11px 'DM Mono';color:#888}
+    .error{color:#fff!important;font:12px 'DM Mono';min-height:18px}
+    @media(max-width:850px){.login-wrap{grid-template-columns:1fr}.login-grid{grid-template-columns:1fr}.login-grid div{border-right:0;border-bottom:1px solid var(--l)}.login-grid div:last-child{border-bottom:0}}
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+  <header>
+    <a class="logo" href="index.html"><span class="mark"><b>A</b></span>AURA <i>PROTOCOL</i></a>
+    <nav><a href="architecture.html">Architecture</a><a href="network.html">Network</a><a href="hosts.html">Hosts</a><a href="developers.html">Developers</a><a href="docs.html">Docs</a></nav>
+    <a class="navbtn" href="privacy.html">Privacy <b>↗</b></a>
+  </header>
+  <main class="page login-wrap">
+    <section>
+      <div class="pill">●&nbsp; PRIVATE OPERATIONS ACCESS</div>
+      <h1>Enter Aura<br><span>operator console.</span></h1>
+      <p>The public website explains the protocol. The console and arena are operational product surfaces for demos, host onboarding, social quests, staking flows, and protocol testing.</p>
+      <div class="login-grid">
+        <div><b>Console</b><span>HOSTS / GATEWAYS / EPOCHS</span></div>
+        <div><b>Arena</b><span>PROFILES / QUESTS / STAKING</span></div>
+      </div>
+    </section>
+    <aside class="login-card">
+      <h2>Login</h2>
+      <p>Use the private access code for this local build.</p>
+      <form id="login-form">
+        <label>Access code<input name="code" type="password" value="aura"></label>
+        <button>Unlock console</button>
+      </form>
+      <p class="error" id="error"></p>
+      <small>Development access code: <code>aura</code>. Replace this with wallet auth or OAuth before any public deployment.</small>
+    </aside>
+  </main>
+  <script>
+    document.querySelector('#login-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const code = new FormData(event.target).get('code');
+      if (code !== 'aura') {
+        document.querySelector('#error').textContent = 'Invalid access code.';
+        return;
+      }
+      localStorage.setItem('aura-session', 'granted');
+      location.href = 'dashboard.html';
+    });
+  </script>
+</body>
+</html>

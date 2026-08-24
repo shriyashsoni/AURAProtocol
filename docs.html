@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Docs - Aura</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="brand.css">
+  <style>
+    .doc{padding:90px 0 140px;max-width:1180px}
+    .doc h1{font-size:clamp(54px,5vw,84px)}
+    .doc-grid{display:grid;grid-template-columns:280px 1fr;gap:72px;margin-top:64px}
+    .doc-grid aside{font:12px 'DM Mono';line-height:2.35;color:#999;position:sticky;top:28px;align-self:start}
+    .doc-grid article{border-left:1px solid var(--l);padding-left:38px}
+    .doc-grid h2{font-size:32px;letter-spacing:-.05em;margin:0 0 18px}
+    .doc-grid h3{font-size:20px;margin:40px 0 10px}
+    .doc-grid p,.doc-grid li{color:#aaa;line-height:1.75;font-size:14px}
+    .doc-grid code{color:#fff;font:12px 'DM Mono'}
+    .doc-grid ul{padding-left:18px}
+    .spec-table{display:grid;grid-template-columns:220px 1fr;border:1px solid var(--l);margin:24px 0}
+    .spec-table div{padding:14px;border-bottom:1px solid var(--l);font-size:13px;color:#aaa}
+    .spec-table div:nth-child(odd){font-family:'DM Mono';color:#fff;border-right:1px solid var(--l)}
+    .spec-table div:nth-last-child(-n+2){border-bottom:0}
+    .callout{border:1px solid #555;padding:22px;margin:28px 0;background:#080808}
+    @media(max-width:760px){.doc-grid,.spec-table{grid-template-columns:1fr}.doc-grid article{border-left:0;border-top:1px solid var(--l);padding:26px 0}.doc-grid aside{position:relative}.spec-table div:nth-child(odd){border-right:0}}
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+  <header>
+    <a class="logo" href="index.html"><span class="mark"><b>A</b></span>AURA <i>PROTOCOL</i></a>
+    <nav><a href="architecture.html">Architecture</a><a href="network.html">Network</a><a href="hosts.html">Hosts</a><a href="developers.html">Developers</a><a class="selected" href="docs.html">Docs</a></nav>
+    <a class="navbtn" href="login.html">Login <b>↗</b></a>
+  </header>
+  <main class="page doc">
+    <div class="pill">●&nbsp; PRODUCT AND PROTOCOL DOCUMENTATION</div>
+    <h1>Aura Protocol<br><span>technical overview.</span></h1>
+    <div class="doc-grid">
+      <aside>
+        PRODUCT<br>
+        PARTICIPANTS<br>
+        ARCHITECTURE<br>
+        ON-CHAIN STATE<br>
+        GATEWAY LAYER<br>
+        QUEST ECONOMY<br>
+        PRIVACY<br>
+        SECURITY<br>
+        ROADMAP
+      </aside>
+      <article>
+        <h2>Product definition</h2>
+        <p>Aura Protocol is a Solana-native decentralized physical infrastructure protocol for WiFi connectivity. Hosts contribute internet access, consumers use connectivity, operators manage deployments, buyers purchase capacity, and developers build on verified network primitives.</p>
+
+        <h3>Core architecture</h3>
+        <p>The system follows a strict boundary: physical internet traffic remains off-chain, while Solana coordinates economic ownership and settlement. Aura Gateway devices sign service telemetry; the verification layer scores useful contribution; reward epochs are published as compact state for claims.</p>
+
+        <div class="spec-table">
+          <div>Physical layer</div><div>Router, WiFi access point, captive portal, and normal IP traffic.</div>
+          <div>Gateway layer</div><div>Signed heartbeat, uptime, quality, client count, and anti-replay proof.</div>
+          <div>Core layer</div><div>Operator records, venues, network state, sessions, eligibility, and reward calculation.</div>
+          <div>Solana layer</div><div>PDAs for protocol state, operators, networks, reward epochs, claim receipts, staking, and treasury.</div>
+          <div>Application layer</div><div>Public website, host console, quest arena, analytics, and developer API.</div>
+        </div>
+
+        <h3>Participants</h3>
+        <ul>
+          <li>Consumers discover access, build a profile, complete quests, and participate in rewards.</li>
+          <li>WiFi hosts register venues and gateways, prove service, and become eligible for settlement.</li>
+          <li>Network operators manage multi-location deployments and service quality.</li>
+          <li>Connectivity buyers purchase or sponsor access capacity for events, brands, campuses, or mobility use cases.</li>
+          <li>Developers consume protocol data, build apps, and integrate verified connectivity primitives.</li>
+        </ul>
+
+        <h3>On-chain design</h3>
+        <p>Aura's program shape includes protocol configuration, operator authority, network registry state, reward epoch roots, claim receipts, and governance-ready controls. Token settlement and staking should use audited SPL-token flows and multisig-controlled authorities.</p>
+
+        <h3>Backend and smart-contract readiness</h3>
+        <p>The working backend exposes local API flows, signed gateway verification, local chain receipts, and chain sync endpoints. Contract source now covers protocol setup, operators, WiFi networks, reward epochs, profile claims, quest receipts, staking positions, and campaign claim receipts. Run <code>npm run chain:check</code> to inspect Solana readiness.</p>
+
+        <h3>Quest economy</h3>
+        <p>The growth system borrows a market-dashboard model: users have profile positions, quests behave like earnable markets, staking locks earned points for signal, claims create receipts, and leaderboards rank contribution. Real social login should use OAuth or wallet-native attestations before production.</p>
+
+        <h3>Privacy and security</h3>
+        <div class="callout">
+          <p>Aura should never publish browsing history, DNS activity, packet payloads, router passwords, raw MAC addresses, or exact private-home coordinates to public chain state.</p>
+        </div>
+        <p>Production readiness requires audited contracts, gateway firmware signing, replay protection, rate limits, abuse detection, event indexing, observability, incident response, and legal/compliance review for each operating region.</p>
+
+        <h3>Private console</h3>
+        <p>The private Console and Arena are available through <code>login.html</code> for operator workflows, host onboarding, signed gateway telemetry, user quests, staking, claiming, and leaderboard testing.</p>
+      </article>
+    </div>
+  </main>
+</body>
+</html>

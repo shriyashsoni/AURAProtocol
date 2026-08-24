@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Aura Protocol</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="brand.css">
+  <style>
+    .cards.five{grid-template-columns:repeat(5,1fr)}
+    .proof-band{border-top:1px solid var(--l);border-bottom:1px solid var(--l);padding:44px 0}
+    .proof-grid{display:grid;grid-template-columns:1.1fr repeat(3,1fr);gap:1px;background:var(--l);border:1px solid var(--l)}
+    .proof-grid div{background:#050505;padding:26px;min-height:160px}
+    .proof-grid h3{font-size:20px;margin:0 0 14px}
+    .proof-grid p{color:#999;font-size:14px;line-height:1.6;margin:0}
+    .product-footer{display:grid;grid-template-columns:1fr 1.4fr .9fr;gap:40px;padding:55px 0;align-items:start}
+    .product-footer p{line-height:1.7}
+    .footer-links{display:grid!important;grid-template-columns:repeat(2,1fr);gap:12px!important;margin-left:0!important}
+    .footer-links a{font-size:13px}
+    @media(max-width:1050px){.cards.five{grid-template-columns:1fr 1fr}.proof-grid,.product-footer{grid-template-columns:1fr}}
+    @media(max-width:570px){.cards.five{grid-template-columns:1fr}.product-footer{gap:20px}}
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+  <header>
+    <a class="logo" href="index.html"><span class="mark"><b>A</b></span>AURA <i>PROTOCOL</i></a>
+    <nav><a href="architecture.html">Architecture</a><a href="network.html">Network</a><a href="hosts.html">Hosts</a><a href="developers.html">Developers</a><a href="docs.html">Docs</a></nav>
+    <a class="navbtn" href="login.html">Login <b>↗</b></a>
+  </header>
+  <main>
+    <section class="hero page">
+      <div>
+        <div class="pill">●&nbsp; SOLANA-NATIVE WIFI DEPIN PROTOCOL</div>
+        <h1>Aura Protocol<br><span>on-chain coordination for real WiFi.</span></h1>
+        <p>Aura connects hosts, consumers, operators, developers, and buyers through a verifiable connectivity marketplace. WiFi traffic stays off-chain; network identity, rewards, settlement, staking, claims, and protocol state are designed for Solana.</p>
+        <div class="actions">
+          <a class="button white" href="architecture.html">View architecture <b>→</b></a>
+          <a class="button" href="docs.html">Read docs <b>↗</b></a>
+        </div>
+      </div>
+      <div class="orb">
+        <div class="ring r1"></div>
+        <div class="ring r2"></div>
+        <div class="ring r3"></div>
+        <div class="core">A</div>
+        <span class="tag t1">AURA GATEWAY</span>
+        <span class="tag t2">SOLANA PDA</span>
+        <span class="tag t3">REWARD EPOCH</span>
+      </div>
+    </section>
+    <section class="strip">
+      <span>HOSTS</span><b>✦</b><span>CONSUMERS</span><b>✦</b><span>OPERATORS</span><b>✦</b><span>CONNECTIVITY BUYERS</span><b>✦</b><span>DEVELOPERS</span>
+    </section>
+    <section class="page intro">
+      <div class="number">01 - PRODUCT THESIS</div>
+      <div>
+        <h2>The internet already exists.<br><span>Its coordination layer does not.</span></h2>
+        <p>Aura turns compatible routers, venues, and managed hotspots into a programmable connectivity network. The protocol rewards useful service, publishes verifiable settlement state, and gives builders a clean infrastructure surface.</p>
+      </div>
+    </section>
+    <section class="page systems">
+      <div class="head">
+        <div><div class="number">02 - PROTOCOL LAYERS</div><h2>Built like infrastructure,<br>not a campaign page.</h2></div>
+        <p>Each layer has a narrow responsibility: physical connectivity, gateway verification, service accounting, reward logic, and on-chain settlement.</p>
+      </div>
+      <div class="cards five">
+        <article><small>01 / IDENTITY</small><div class="icon">◇</div><h3>Network registry</h3><p>Solana account structure for operators, venues, network identities, ownership, and status.</p></article>
+        <article><small>02 / ACCESS</small><div class="icon">⌁</div><h3>Gateway verification</h3><p>Registered devices sign health reports and service proofs before a network earns.</p></article>
+        <article><small>03 / USAGE</small><div class="icon">◎</div><h3>Contribution engine</h3><p>Useful connectivity is scored from duration, quality, demand, and anti-fraud signals.</p></article>
+        <article><small>04 / GROWTH</small><div class="icon">□</div><h3>Profile and quests</h3><p>Users claim profiles, link social identity, complete tasks, stake, claim, and climb rankings.</p></article>
+        <article><small>05 / SETTLEMENT</small><div class="icon">↗</div><h3>Reward epochs</h3><p>Epoch roots, claim receipts, treasury state, and governance-ready primitives live on-chain.</p></article>
+      </div>
+    </section>
+    <section class="statement">
+      <div><div class="number">03 - NON-NEGOTIABLE BOUNDARY</div><h2>Packets off-chain.<br>Coordination on-chain.</h2></div>
+      <aside><p>Aura does not route browsing traffic through Solana. Normal internet traffic remains normal IP traffic; Solana coordinates identity, ownership, staking, rewards, claims, treasury, and protocol state.</p><a class="line" href="architecture.html">Explore the system →</a></aside>
+    </section>
+    <section class="proof-band">
+      <div class="page proof-grid">
+        <div><div class="number">04 - WHY IT MATTERS</div><h3>Connectivity becomes programmable.</h3><p>Venues, operators, and buyers can coordinate access without inventing private spreadsheets, manual payouts, or opaque user growth loops.</p></div>
+        <div><h3>For hosts</h3><p>Register infrastructure, prove uptime, earn from useful connectivity, and build reputation.</p></div>
+        <div><h3>For users</h3><p>Claim a network profile, discover access, complete quests, stake signal, and participate in rewards.</p></div>
+        <div><h3>For developers</h3><p>Build on verifiable network identities, reward epochs, access primitives, and analytics surfaces.</p></div>
+      </div>
+    </section>
+    <section class="page participate">
+      <div class="number">05 - EXPLORE AURA</div>
+      <div class="paths">
+        <a href="architecture.html"><span>01</span><h3>Architecture</h3><p>Understand how physical WiFi, gateways, backend verification, and Solana state fit together.</p><b>→</b></a>
+        <a href="network.html"><span>02</span><h3>Network</h3><p>Review network states, host categories, maps, and service verification surfaces.</p><b>→</b></a>
+        <a href="docs.html"><span>03</span><h3>Docs</h3><p>Read the detailed product, protocol, privacy, and production architecture notes.</p><b>→</b></a>
+      </div>
+    </section>
+    <section class="final">
+      <div class="page">
+        <div class="pill">●&nbsp; AURA PROTOCOL</div>
+        <h2>WiFi infrastructure,<br><span>coordinated on Solana.</span></h2>
+        <p>A protocol for real-world connectivity markets, verified service, and programmable settlement.</p>
+        <a class="button white" href="login.html">Private console login <b>→</b></a>
+      </div>
+    </section>
+  </main>
+  <footer class="page product-footer">
+    <div>
+      <a class="logo" href="index.html"><span class="mark"><b>A</b></span>AURA <i>PROTOCOL</i></a>
+      <p>Solana-native coordination for decentralized WiFi infrastructure.</p>
+    </div>
+    <p>Aura is designed around privacy-first connectivity: browsing data stays off-chain, sensitive host data is minimized, and protocol state is limited to ownership, service, staking, reward, and settlement primitives.</p>
+    <div class="footer-links">
+      <a href="architecture.html">Architecture</a><a href="network.html">Network</a><a href="hosts.html">Hosts</a><a href="developers.html">Developers</a><a href="docs.html">Docs</a><a href="privacy.html">Privacy</a><a href="login.html">Login</a>
+    </div>
+  </footer>
+</body>
+</html>

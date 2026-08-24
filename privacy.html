@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Privacy - Aura</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="brand.css">
+  <style>
+    .privacy{padding:90px 0 130px;max-width:1050px}
+    .privacy h1{font-size:clamp(52px,5vw,82px)}
+    .policy{display:grid;grid-template-columns:260px 1fr;gap:70px;margin-top:60px}
+    .policy aside{font:12px 'DM Mono';line-height:2.2;color:#999}
+    .policy article{border-left:1px solid var(--l);padding-left:36px}
+    .policy h2{font-size:28px;letter-spacing:-.05em;margin:0 0 18px}
+    .policy h3{font-size:19px;margin:36px 0 8px}
+    .policy p,.policy li{color:#aaa;line-height:1.75;font-size:14px}
+    .policy ul{padding-left:18px}
+    @media(max-width:760px){.policy{grid-template-columns:1fr;gap:26px}.policy article{border-left:0;border-top:1px solid var(--l);padding:26px 0}}
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+  <header>
+    <a class="logo" href="index.html"><span class="mark"><b>A</b></span>AURA <i>PROTOCOL</i></a>
+    <nav><a href="architecture.html">Architecture</a><a href="network.html">Network</a><a href="hosts.html">Hosts</a><a href="developers.html">Developers</a><a href="docs.html">Docs</a></nav>
+    <a class="navbtn" href="login.html">Login <b>↗</b></a>
+  </header>
+  <main class="page privacy">
+    <div class="pill">●&nbsp; PRIVACY BY DESIGN</div>
+    <h1>Privacy for a<br><span>physical network.</span></h1>
+    <div class="policy">
+      <aside>DATA MINIMIZATION<br>OFF-CHAIN TRAFFIC<br>HOST VISIBILITY<br>SOCIAL PROFILES<br>ON-CHAIN STATE<br>SECURITY</aside>
+      <article>
+        <h2>Aura separates internet traffic from protocol state.</h2>
+        <p>Aura is designed so Solana coordinates ownership, service state, staking, rewards, claims, and treasury logic. It is not designed to publish browsing behavior or route packet traffic through a public blockchain.</p>
+        <h3>Never publish</h3>
+        <ul>
+          <li>Browsing history, DNS requests, packet payloads, router credentials, or raw MAC addresses.</li>
+          <li>Exact private-home coordinates unless a host explicitly chooses public discovery.</li>
+          <li>Unnecessary personally identifying information in reward or quest records.</li>
+        </ul>
+        <h3>Use carefully</h3>
+        <p>Gateway health, uptime, quality, and usage aggregates should be minimized, signed, and stored with clear retention rules. Social identities used for quests should be optional and replaceable with wallet-native proofs.</p>
+        <h3>On-chain boundary</h3>
+        <p>On-chain accounts should hold compact state: network identifiers, operator ownership, reward epoch roots, claim receipts, staking records, and governance decisions. Sensitive raw telemetry belongs off-chain behind access controls.</p>
+      </article>
+    </div>
+  </main>
+</body>
+</html>

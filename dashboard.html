@@ -1,0 +1,209 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Aura Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="brand.css">
+  <style>
+    .console-shell{min-height:calc(100vh - 120px);display:grid;grid-template-columns:280px 1fr;border-left:1px solid var(--l);border-right:1px solid var(--l)}
+    .rail{border-right:1px solid var(--l);padding:26px 18px;background:rgba(0,0,0,.6);position:sticky;top:0;height:calc(100vh - 120px)}
+    .rail h1{font-size:28px;letter-spacing:-.04em;margin:18px 0 8px}
+    .rail p{color:#999;font-size:13px;line-height:1.55}
+    .rail nav{display:grid;gap:8px;margin-top:34px}
+    .rail nav a{border:1px solid #242424;color:#aaa;padding:13px 14px;font:12px 'DM Mono';text-decoration:none}
+    .rail nav a:hover{border-color:#666;color:#fff}
+    .status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#fff;margin-right:8px}
+    .workbench{padding:30px}
+    .topline{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--l);margin-bottom:28px}
+    .metric{padding:18px;border-right:1px solid var(--l);min-height:92px}
+    .metric:last-child{border-right:0}
+    .metric span{display:block;color:#888;font:11px 'DM Mono';margin-bottom:13px}
+    .metric b{font-size:28px;letter-spacing:-.04em}
+    .ops-grid{display:grid;grid-template-columns:420px 1fr;gap:28px;align-items:start}
+    .panel{border:1px solid var(--l);background:#050505}
+    .panel-head{height:58px;border-bottom:1px solid var(--l);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+    .panel-head h2{font-size:15px;margin:0;letter-spacing:0}
+    .panel-head span{color:#888;font:11px 'DM Mono'}
+    .panel-body{padding:18px}
+    .flow-form{display:grid;gap:14px}
+    .flow-form label{font:11px 'DM Mono';color:#999}
+    .flow-form input,.flow-form select{width:100%;display:block;margin-top:8px;background:#090909;border:1px solid #333;color:#fff;padding:12px;font:14px Manrope}
+    .flow-form button,.tool-button{border:1px solid #fff;background:#fff;color:#000;padding:13px 16px;font:800 13px Manrope;cursor:pointer}
+    .tool-button.secondary{background:#050505;color:#fff}
+    .button-row{display:flex;gap:10px;flex-wrap:wrap}
+    .feed{display:grid;gap:10px}
+    .feed article{border:1px solid #202020;padding:15px;background:#080808}
+    .feed h3{font-size:16px;margin:0 0 8px}
+    .feed p{color:#999;margin:0;font-size:13px;line-height:1.5}
+    .feed small{display:block;margin-top:12px}
+    .status-active{color:#fff}
+    .status-warn{color:#aaa}
+    .log{margin-top:16px;border:1px solid #202020;background:#090909;color:#aaa;padding:14px;min-height:76px;font:12px/1.6 'DM Mono';white-space:pre-wrap}
+    .stage-map{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--l);margin:28px 0}
+    .stage-map div{min-height:108px;border-right:1px solid var(--l);padding:14px}
+    .stage-map div:last-child{border-right:0}
+    .stage-map b{display:block;margin-top:22px;font-size:14px}
+    .stage-map span{font:10px 'DM Mono';color:#777}
+    .epoch-card{margin-top:28px}
+    .epoch-row{display:grid;grid-template-columns:1fr .8fr .8fr;gap:16px;padding:15px;border-top:1px solid var(--l);align-items:center}
+    .epoch-row span{font:11px 'DM Mono';color:#888;overflow-wrap:anywhere}
+    @media(max-width:1050px){.console-shell{grid-template-columns:1fr}.rail{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--l)}.rail nav{grid-template-columns:repeat(3,1fr)}.ops-grid{grid-template-columns:1fr}.topline{grid-template-columns:repeat(2,1fr)}.metric:nth-child(2){border-right:0}.metric:nth-child(-n+2){border-bottom:1px solid var(--l)}}
+    @media(max-width:620px){.workbench{padding:18px}.rail nav,.topline,.stage-map{grid-template-columns:1fr}.metric,.stage-map div{border-right:0;border-bottom:1px solid var(--l)}.metric:last-child,.stage-map div:last-child{border-bottom:0}.epoch-row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <script>if(localStorage.getItem('aura-session')!=='granted') location.replace('login.html');</script>
+  <div class="grid"></div>
+  <header>
+    <a class="logo" href="index.html"><span class="mark"><b>A</b></span>AURA <i>PROTOCOL</i></a>
+    <nav><a href="architecture.html">Architecture</a><a href="network.html">Network</a><a href="hosts.html">Hosts</a><a href="developers.html">Developers</a></nav>
+    <a class="navbtn" href="docs.html">Docs <b>↗</b></a>
+  </header>
+  <main class="page console-shell">
+    <aside class="rail">
+      <div class="pill"><span class="status-dot"></span>OPERATOR CORE</div>
+      <h1>Aura Console</h1>
+      <p>Operate host onboarding, gateway identity, signed heartbeats, access sessions, reward epochs, and settlement readiness.</p>
+      <nav>
+        <a href="#onboard">01 ONBOARD</a>
+        <a href="#networks">02 NETWORKS</a>
+        <a href="#settlement">03 EPOCHS</a>
+      </nav>
+      <p id="service-status">Checking API...</p>
+    </aside>
+    <section class="workbench">
+      <div class="topline" id="metrics">
+        <div class="metric"><span>NETWORKS</span><b>0</b></div>
+        <div class="metric"><span>GATEWAYS</span><b>0</b></div>
+        <div class="metric"><span>SESSIONS</span><b>0</b></div>
+        <div class="metric"><span>REWARD UNITS</span><b>0</b></div>
+      </div>
+      <div class="stage-map">
+        <div><span>STEP 01</span><b>Operator</b></div>
+        <div><span>STEP 02</span><b>Venue</b></div>
+        <div><span>STEP 03</span><b>Network PDA</b></div>
+        <div><span>STEP 04</span><b>Gateway proof</b></div>
+        <div><span>STEP 05</span><b>Epoch close</b></div>
+      </div>
+      <div class="ops-grid">
+        <section class="panel" id="onboard">
+          <div class="panel-head"><h2>Create working host flow</h2><span>REAL LOCAL API</span></div>
+          <div class="panel-body">
+            <form class="flow-form" id="host-form">
+              <label>Operator name<input name="operator" value="Harbor Coffee Labs" required></label>
+              <label>Venue name<input name="venue" value="Harbor Coffee Jabalpur" required></label>
+              <label>City<input name="city" value="Jabalpur" required></label>
+              <label>Venue type<select name="hostType"><option value="cafe">Cafe</option><option value="coworking">Coworking</option><option value="hotel">Hotel</option><option value="campus">Campus</option></select></label>
+              <label>Network name<input name="network" value="Harbor Guest WiFi" required></label>
+              <label>Owner wallet placeholder<input name="wallet" value="devnet-wallet-placeholder"></label>
+              <button>Create, sign, verify, use, settle</button>
+            </form>
+            <div class="log" id="log">Ready. Start with: npm run dev</div>
+          </div>
+        </section>
+        <section class="panel" id="networks">
+          <div class="panel-head"><h2>Network operations</h2><span>LIVE STORE</span></div>
+          <div class="panel-body">
+            <div class="button-row">
+              <button class="tool-button secondary" id="refresh">Refresh</button>
+              <button class="tool-button secondary" id="close-epoch">Close reward epoch</button>
+            </div>
+            <div class="feed" id="network-list" style="margin-top:16px"></div>
+          </div>
+        </section>
+      </div>
+      <section class="panel epoch-card" id="settlement">
+        <div class="panel-head"><h2>Settlement preview</h2><span>LOCAL MERKLE ROOT</span></div>
+        <div id="epoch-list"></div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const encoder = new TextEncoder();
+    const api = async (route, options = {}) => {
+      const res = await fetch(route, { headers: { 'Content-Type': 'application/json' }, ...options });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      return json.data;
+    };
+    const post = (route, payload) => api(route, { method: 'POST', body: JSON.stringify(payload) });
+    const toPem = (buffer) => {
+      const bytes = String.fromCharCode(...new Uint8Array(buffer));
+      const base64 = btoa(bytes).match(/.{1,64}/g).join('\n');
+      return `-----BEGIN PUBLIC KEY-----\n${base64}\n-----END PUBLIC KEY-----\n`;
+    };
+    const signReport = async (privateKey, report) => {
+      const signature = await crypto.subtle.sign('Ed25519', privateKey, encoder.encode(JSON.stringify(report)));
+      return btoa(String.fromCharCode(...new Uint8Array(signature)));
+    };
+    const log = (message) => { document.querySelector('#log').textContent = message; };
+    const fmt = (value) => new Intl.NumberFormat('en-US').format(value || 0);
+    async function load() {
+      try {
+        const data = await api('/v1/overview');
+        document.querySelector('#service-status').textContent = 'API online. Private operations store is ready.';
+        const rewards = data.epochs.reduce((total, epoch) => total + epoch.totalRewardUnits, 0);
+        document.querySelector('#metrics').innerHTML = [
+          ['NETWORKS', data.networks.length],
+          ['GATEWAYS', data.devices.length],
+          ['SESSIONS', data.sessions.length],
+          ['REWARD UNITS', rewards]
+        ].map(([label, value]) => `<div class="metric"><span>${label}</span><b>${fmt(value)}</b></div>`).join('');
+        document.querySelector('#network-list').innerHTML = data.networks.length ? data.networks.map((network) => `
+          <article>
+            <h3>${network.name}</h3>
+            <p>${network.venue ? network.venue.name + ' / ' + network.venue.city : 'Venue pending'}<br>${network.settlementPda}</p>
+            <small class="${network.state === 'ACTIVE' ? 'status-active' : 'status-warn'}">${network.state} / ${network.devices.length} gateway / ${fmt(network.usage.verifiedBytes)} verified bytes / ${fmt(network.usage.rewardUnits)} reward units</small>
+          </article>`).join('') : '<article><h3>No networks yet</h3><p>Create a host flow to populate the local registry.</p></article>';
+        document.querySelector('#epoch-list').innerHTML = data.epochs.length ? data.epochs.map((epoch) => `
+          <div class="epoch-row"><b>${epoch.label}</b><span>${epoch.merkleRoot || 'empty epoch'}</span><span>${epoch.totalVerifiedSessions} sessions / ${fmt(epoch.totalRewardUnits)} units</span></div>`).join('') : '<div class="epoch-row"><b>No epochs closed</b><span>Complete a verified session first.</span><span>0 units</span></div>';
+      } catch (error) {
+        document.querySelector('#service-status').textContent = 'API offline. Run npm run dev.';
+        log('Start the local backend first:\nnpm run dev');
+      }
+    }
+    async function runFlow(form) {
+      log('Creating operator...');
+      const operator = await post('/v1/operators', { name: form.get('operator') });
+      log('Registering venue...');
+      const venue = await post('/v1/venues', { operatorId: operator.id, name: form.get('venue'), city: form.get('city'), hostType: form.get('hostType'), visibility: 'public' });
+      log('Creating network registry record...');
+      const network = await post('/v1/networks', { name: form.get('network'), venueId: venue.id, ownerWallet: form.get('wallet') });
+      log('Generating browser Ed25519 gateway key...');
+      const keys = await crypto.subtle.generateKey({ name: 'Ed25519' }, true, ['sign', 'verify']);
+      const publicKey = toPem(await crypto.subtle.exportKey('spki', keys.publicKey));
+      const deviceId = `gw_${crypto.randomUUID().replaceAll('-', '').slice(0, 10)}`;
+      await post(`/v1/networks/${network.id}/devices/register`, { deviceId, publicKey, model: 'Aura Gateway Browser DevKit', firmware: '0.1.0-private' });
+      log('Signing gateway health report...');
+      const report = { deviceId, counter: 1, timestamp: new Date().toISOString(), nonce: crypto.randomUUID(), latencyMs: 28, uptime: 99.2, clientCount: 3 };
+      await post(`/v1/networks/${network.id}/heartbeat`, { ...report, signature: await signReport(keys.privateKey, report) });
+      log('Starting consumer access session...');
+      const session = await post('/v1/sessions', { networkId: network.id, consumerRef: 'wallet:demo-consumer', accessMode: 'wallet' });
+      log('Completing verified usage session...');
+      await post(`/v1/sessions/${session.id}/complete`, { bytesDown: 620000000, bytesUp: 47000000, durationMinutes: 31, qualityScore: 94 });
+      log('Closing settlement epoch...');
+      const epoch = await post('/v1/epochs/close', { label: `${form.get('venue')} pilot epoch` });
+      log(`Complete.\nNetwork: ${network.id}\nGateway: ${deviceId}\nEpoch: ${epoch.id}\nReward units: ${epoch.totalRewardUnits}`);
+      await load();
+    }
+    document.querySelector('#host-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try { await runFlow(new FormData(event.target)); }
+      catch (error) { log(`Flow stopped: ${error.message}`); }
+    });
+    document.querySelector('#refresh').addEventListener('click', load);
+    document.querySelector('#close-epoch').addEventListener('click', async () => {
+      try {
+        const epoch = await post('/v1/epochs/close', { label: 'Manual console epoch' });
+        log(`Epoch closed: ${epoch.id}\nVerified sessions: ${epoch.totalVerifiedSessions}\nReward units: ${epoch.totalRewardUnits}`);
+        await load();
+      } catch (error) { log(error.message); }
+    });
+    load();
+  </script>
+</body>
+</html>

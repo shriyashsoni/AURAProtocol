@@ -1,0 +1,128 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { spawn } = require('node:child_process');
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const port = 34771;
+const root = path.join(__dirname, '..');
+let child;
+
+const request = async (route, payload = undefined, method = payload ? 'POST' : 'GET') => {
+  const res = await fetch(`http://localhost:${port}${route}`, {
+    method,
+    headers: payload ? { 'content-type': 'application/json' } : undefined,
+    body: payload ? JSON.stringify(payload) : undefined
+  });
+  return { status: res.status, body: await res.json() };
+};
+const sign = (privateKey, report) => crypto.sign(null, Buffer.from(JSON.stringify(report)), privateKey).toString('base64');
+const createActiveNetwork = async (suffix = crypto.randomUUID().slice(0, 6)) => {
+  const operator = await request('/v1/operators', { name: `Operator ${suffix}` });
+  assert.equal(operator.status, 201);
+  const venue = await request('/v1/venues', { operatorId: operator.body.data.id, name: `Venue ${suffix}`, city: 'Jabalpur' });
+  assert.equal(venue.status, 201);
+  const network = await request('/v1/networks', { name: `WiFi ${suffix}`, venueId: venue.body.data.id });
+  assert.equal(network.status, 201);
+  const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
+  const deviceId = `gw_${suffix}`;
+  const register = await request(`/v1/networks/${network.body.data.id}/devices/register`, {
+    deviceId,
+    publicKey: publicKey.export({ type: 'spki', format: 'pem' }),
+    model: 'Test Gateway'
+  });
+  assert.equal(register.status, 201);
+  const report = { deviceId, counter: 1, timestamp: new Date().toISOString(), nonce: crypto.randomUUID(), latencyMs: 30, uptime: 99, clientCount: 2 };
+  const heartbeat = await request(`/v1/networks/${network.body.data.id}/heartbeat`, { ...report, signature: sign(privateKey, report) });
+  assert.equal(heartbeat.status, 201);
+  assert.equal(heartbeat.body.data.network.state, 'ACTIVE');
+  return { networkId: network.body.data.id, privateKey, deviceId };
+};
+
+test.before(async () => {
+  fs.rmSync(path.join(root, 'prototype-data.json'), { force: true });
+  child = spawn(process.execPath, ['server.js'], { cwd: root, env: { ...process.env, PORT: String(port) } });
+  await new Promise((resolve) => child.stdout.once('data', resolve));
+});
+test.after(() => {
+  child.kill();
+  fs.rmSync(path.join(root, 'prototype-data.json'), { force: true });
+});
+
+test('host onboarding requires a registered gateway and signed heartbeat', async () => {
+  const operator = await request('/v1/operators', { name: 'Test operator' });
+  const venue = await request('/v1/venues', { operatorId: operator.body.data.id, name: 'Test venue', city: 'Jabalpur' });
+  const network = await request('/v1/networks', { name: 'Test WiFi', venueId: venue.body.data.id });
+  const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
+  const report = { deviceId: 'gw_unregistered', counter: 1, timestamp: new Date().toISOString(), nonce: crypto.randomUUID(), latencyMs: 30, uptime: 99, clientCount: 2 };
+  assert.equal((await request(`/v1/networks/${network.body.data.id}/heartbeat`, { ...report, signature: sign(privateKey, report) })).status, 403);
+  assert.equal((await request(`/v1/networks/${network.body.data.id}/devices/register`, { deviceId: 'gw_registered', publicKey: publicKey.export({ type: 'spki', format: 'pem' }) })).status, 201);
+  const signedReport = { ...report, deviceId: 'gw_registered' };
+  assert.equal((await request(`/v1/networks/${network.body.data.id}/heartbeat`, { ...signedReport, signature: sign(privateKey, signedReport) })).status, 201);
+});
+
+test('replayed signed report is rejected', async () => {
+  const flow = await createActiveNetwork('replay');
+  const report = { deviceId: flow.deviceId, counter: 2, timestamp: new Date().toISOString(), nonce: 'a-unique-nonce', latencyMs: 30, uptime: 99, clientCount: 1 };
+  const signed = { ...report, signature: sign(flow.privateKey, report) };
+  assert.equal((await request(`/v1/networks/${flow.networkId}/heartbeat`, signed)).status, 201);
+  assert.equal((await request(`/v1/networks/${flow.networkId}/heartbeat`, signed)).status, 409);
+});
+
+test('verified access sessions can be closed into a reward epoch', async () => {
+  const flow = await createActiveNetwork('epoch');
+  const session = await request('/v1/sessions', { networkId: flow.networkId, consumerRef: 'wallet:test-consumer', accessMode: 'wallet' });
+  assert.equal(session.status, 201);
+  const completed = await request(`/v1/sessions/${session.body.data.id}/complete`, {
+    bytesDown: 420000000,
+    bytesUp: 35000000,
+    durationMinutes: 24,
+    qualityScore: 91
+  });
+  assert.equal(completed.body.data.verified, true);
+  assert.ok(completed.body.data.rewardUnits > 0);
+  const epoch = await request('/v1/epochs/close', { label: 'Unit test epoch' });
+  assert.equal(epoch.status, 201);
+  assert.equal(epoch.body.data.totalVerifiedSessions, 1);
+  assert.ok(epoch.body.data.merkleRoot);
+});
+
+test('quest arena supports profile, social link, repeated tasks, stake, claim, and leaderboard', async () => {
+  const profile = await request('/v1/profiles', { handle: 'quest_builder', displayName: 'Quest Builder', wallet: 'devnet-wallet' });
+  assert.equal(profile.status, 201);
+  assert.equal(profile.body.data.score.earned, 120);
+  const linked = await request(`/v1/profiles/${profile.body.data.id}/link-twitter`, { twitterHandle: 'quest_builder_x' });
+  assert.equal(linked.status, 200);
+  assert.equal(linked.body.data.twitter.handle, 'quest_builder_x');
+  assert.equal(linked.body.data.score.earned, 360);
+  const firstShare = await request('/v1/quests/quest_share/complete', { profileId: profile.body.data.id, proof: 'https://x.com/demo/status/1' });
+  const secondShare = await request('/v1/quests/quest_share/complete', { profileId: profile.body.data.id, proof: 'https://x.com/demo/status/2' });
+  assert.equal(firstShare.status, 201);
+  assert.equal(secondShare.status, 201);
+  assert.equal(secondShare.body.data.profile.score.earned, 540);
+  const duplicateTwitter = await request('/v1/quests/quest_twitter/complete', { profileId: profile.body.data.id, proof: '@again' });
+  assert.equal(duplicateTwitter.status, 409);
+  const stake = await request(`/v1/profiles/${profile.body.data.id}/stake`, { amount: 100, lockDays: 30 });
+  assert.equal(stake.status, 201);
+  assert.equal(stake.body.data.profile.score.staked, 100);
+  const claim = await request(`/v1/profiles/${profile.body.data.id}/claim`, {});
+  assert.equal(claim.status, 201);
+  assert.ok(claim.body.data.claim.amount > 0);
+  const game = await request('/v1/game', undefined, 'GET');
+  assert.equal(game.status, 200);
+  assert.equal(game.body.data.leaderboard[0].handle, 'quest_builder');
+});
+
+test('chain adapter exposes status and local ledger receipts', async () => {
+  const status = await request('/v1/chain/status', undefined, 'GET');
+  assert.equal(status.status, 200);
+  assert.equal(status.body.data.mode, 'local');
+  assert.equal(status.body.data.autoSync, true);
+  const profile = await request('/v1/profiles', { handle: 'chain_ready', displayName: 'Chain Ready', wallet: 'devnet-wallet' });
+  assert.equal(profile.status, 201);
+  assert.equal(profile.body.data.chain.state, 'RECORDED_LOCAL_LEDGER');
+  const manual = await request('/v1/chain/sync/profile', { profileId: profile.body.data.id });
+  assert.equal(manual.status, 201);
+  assert.equal(manual.body.data.action, 'profile.sync');
+});

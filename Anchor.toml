@@ -1,0 +1,16 @@
+[features]
+seeds = false
+skip-lint = false
+
+[programs.devnet]
+aura_protocol = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+
+[provider]
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "pnpm ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+
+# The program ID above is a development placeholder only. Generate and configure
+# a unique program keypair before building or deploying.

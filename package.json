@@ -1,0 +1,8 @@
+{
+  "name": "aura-protocol",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aura Protocol Solana WiFi DePIN protocol workspace",
+  "scripts": { "dev": "node server.js", "start": "node server.js", "test": "node --test tests/*.test.js", "chain:check": "node scripts/deploy-check.js", "aura": "node scripts/aura-cli.js", "program:build": "anchor build", "program:test": "anchor test" },
+  "engines": { "node": ">=18" }
+}

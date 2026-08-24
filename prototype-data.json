@@ -1,0 +1,58 @@
+{
+  "operators": [],
+  "venues": [],
+  "networks": [],
+  "devices": [],
+  "sessions": [],
+  "heartbeats": [],
+  "epochs": [
+    {
+      "id": "epoch_2598ddfe48",
+      "label": "Manual console epoch",
+      "state": "CLOSED_LOCAL",
+      "closedAt": "2026-08-24T13:42:05.221Z",
+      "merkleRoot": null,
+      "totalVerifiedSessions": 0,
+      "totalRewardUnits": 0,
+      "networks": [],
+      "chain": {
+        "id": "localtx_d1b83f949a6b",
+        "mode": "local",
+        "action": "epoch.publish",
+        "state": "RECORDED_LOCAL_LEDGER",
+        "programId": "REPLACE_WITH_DEPLOYED_AURA_PROTOCOL_PROGRAM_ID",
+        "signature": "local_d1b83f949a6b37248ce987dc8d75464a7e94e1bedce09e577d72978284f7fa6a",
+        "digest": "d1b83f949a6b37248ce987dc8d75464a7e94e1bedce09e577d72978284f7fa6a",
+        "createdAt": "2026-08-24T13:42:05.226Z"
+      }
+    }
+  ],
+  "profiles": [],
+  "questCompletions": [],
+  "stakes": [],
+  "rewardClaims": [],
+  "chainTransactions": [
+    {
+      "id": "localtx_d1b83f949a6b",
+      "mode": "local",
+      "action": "epoch.publish",
+      "state": "RECORDED_LOCAL_LEDGER",
+      "programId": "REPLACE_WITH_DEPLOYED_AURA_PROTOCOL_PROGRAM_ID",
+      "signature": "local_d1b83f949a6b37248ce987dc8d75464a7e94e1bedce09e577d72978284f7fa6a",
+      "digest": "d1b83f949a6b37248ce987dc8d75464a7e94e1bedce09e577d72978284f7fa6a",
+      "createdAt": "2026-08-24T13:42:05.226Z"
+    }
+  ],
+  "auditLog": [
+    {
+      "id": "evt_9c97724a88",
+      "type": "epoch.closed",
+      "subjectId": "epoch_2598ddfe48",
+      "detail": {
+        "sessions": 0,
+        "rewardUnits": 0
+      },
+      "createdAt": "2026-08-24T13:42:05.249Z"
+    }
+  ]
+}
